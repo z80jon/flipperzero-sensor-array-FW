@@ -8,13 +8,13 @@ typedef struct {
 
 static SceneUsbUartBridge* scene_usb_uart;
 
-void gpio_scene_usb_uart_callback(GpioCustomEvent event, void* context) {
+void sensor_scene_usb_uart_callback(GpioCustomEvent event, void* context) {
     furi_assert(context);
     SensorApp* app = context;
     view_dispatcher_send_custom_event(app->view_dispatcher, event);
 }
 
-void gpio_scene_usb_uart_on_enter(void* context) {
+void sensor_scene_usb_uart_on_enter(void* context) {
     SensorApp* app = context;
     uint32_t prev_state = scene_manager_get_scene_state(app->scene_manager, SensorAppViewUsbUart);
     if(prev_state == 0) {
@@ -30,13 +30,13 @@ void gpio_scene_usb_uart_on_enter(void* context) {
     usb_uart_get_config(app->usb_uart_bridge, &scene_usb_uart->cfg);
     usb_uart_get_state(app->usb_uart_bridge, &scene_usb_uart->state);
 
-    gpio_usb_uart_set_callback(app->gpio_usb_uart, gpio_scene_usb_uart_callback, app);
+    gpio_usb_uart_set_callback(app->gpio_usb_uart, sensor_scene_usb_uart_callback, app);
     scene_manager_set_scene_state(app->scene_manager, GpioSceneUsbUart, 0);
     view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewUsbUart);
     notification_message(app->notifications, &sequence_display_backlight_enforce_on);
 }
 
-bool gpio_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
+bool sensor_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
     SensorApp* app = context;
     if(event.type == SceneManagerEventTypeCustom) {
         scene_manager_set_scene_state(app->scene_manager, GpioSceneUsbUart, 1);
@@ -56,7 +56,7 @@ bool gpio_scene_usb_uart_on_event(void* context, SceneManagerEvent event) {
     return false;
 }
 
-void gpio_scene_usb_uart_on_exit(void* context) {
+void sensor_scene_usb_uart_on_exit(void* context) {
     SensorApp* app = context;
     uint32_t prev_state = scene_manager_get_scene_state(app->scene_manager, GpioSceneUsbUart);
     if(prev_state == 0) {

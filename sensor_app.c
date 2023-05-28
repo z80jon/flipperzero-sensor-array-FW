@@ -28,7 +28,7 @@ SensorApp* gpio_app_alloc() {
     app->gpio_items = gpio_items_alloc();
 
     app->view_dispatcher = view_dispatcher_alloc();
-    app->scene_manager = scene_manager_alloc(&gpio_scene_handlers, app);
+    app->scene_manager = scene_manager_alloc(&sensor_scene_handlers, app);
     view_dispatcher_enable_queue(app->view_dispatcher);
     view_dispatcher_set_event_callback_context(app->view_dispatcher, app);
 
@@ -64,6 +64,11 @@ SensorApp* gpio_app_alloc() {
         app->view_dispatcher,
         SensorAppViewUsbUartCfg,
         variable_item_list_get_view(app->var_item_list));
+
+    view_dispatcher_add_view(
+        app->view_dispatcher,
+        SensorAppViewIRCam,
+        gpio_test_get_view(app->gpio_test));
 
     scene_manager_next_scene(app->scene_manager, GpioSceneStart);
 

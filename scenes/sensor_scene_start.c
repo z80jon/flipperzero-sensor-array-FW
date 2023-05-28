@@ -21,7 +21,7 @@ const char* const gpio_otg_text[GpioOtgSettingsNum] = {
     "ON",
 };
 
-static void gpio_scene_start_var_list_enter_callback(void* context, uint32_t index) {
+static void sensor_scene_start_var_list_enter_callback(void* context, uint32_t index) {
     furi_assert(context);
     SensorApp* app = context;
     switch(index) {
@@ -38,7 +38,7 @@ static void gpio_scene_start_var_list_enter_callback(void* context, uint32_t ind
     }
 }
 
-static void gpio_scene_start_var_list_change_callback(VariableItem* item) {
+static void sensor_scene_start_var_list_change_callback(VariableItem* item) {
     SensorApp* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
 
@@ -50,13 +50,13 @@ static void gpio_scene_start_var_list_change_callback(VariableItem* item) {
     }
 }
 
-void gpio_scene_start_on_enter(void* context) {
+void sensor_scene_start_on_enter(void* context) {
     SensorApp* app = context;
     VariableItemList* var_item_list = app->var_item_list;
 
     VariableItem* item;
     variable_item_list_set_enter_callback(
-        var_item_list, gpio_scene_start_var_list_enter_callback, app);
+        var_item_list, sensor_scene_start_var_list_enter_callback, app);
 
     variable_item_list_add(var_item_list, "USB-UART Bridge", 0, NULL, NULL);
 
@@ -66,7 +66,7 @@ void gpio_scene_start_on_enter(void* context) {
         var_item_list,
         "5V on GPIO",
         GpioOtgSettingsNum,
-        gpio_scene_start_var_list_change_callback,
+        sensor_scene_start_var_list_change_callback,
         app);
     if(furi_hal_power_is_otg_enabled()) {
         variable_item_set_current_value_index(item, GpioOtgOn);
@@ -84,7 +84,7 @@ void gpio_scene_start_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewVarItemList);
 }
 
-bool gpio_scene_start_on_event(void* context, SceneManagerEvent event) {
+bool sensor_scene_start_on_event(void* context, SceneManagerEvent event) {
     SensorApp* app = context;
     bool consumed = false;
 
@@ -105,14 +105,17 @@ bool gpio_scene_start_on_event(void* context, SceneManagerEvent event) {
                 scene_manager_next_scene(app->scene_manager, GpioSceneUsbUartCloseRpc);
             }
         } else if(event.event == SensorItemEventStartIRCam) {
-            //scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, ScienceItemIRCamViewer)
+            //scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, GpioItemTest);
+            //scene_manager_next_scene(app->scene_manager, GpioSceneTest);
+            scene_manager_set_scene_state(app->scene_manager, GpioSceneStart, SensorItemIRCam);
+            scene_manager_next_scene(app->scene_manager, SensorItemIRCam);
         }
         consumed = true;
     }
     return consumed;
 }
 
-void gpio_scene_start_on_exit(void* context) {
+void sensor_scene_start_on_exit(void* context) {
     SensorApp* app = context;
     variable_item_list_reset(app->var_item_list);
 }

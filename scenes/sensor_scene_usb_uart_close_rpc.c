@@ -1,7 +1,7 @@
 #include "../sensor_app_i.h"
 #include "../sensor_custom_event.h"
 
-void gpio_scene_usb_uart_close_rpc_on_enter(void* context) {
+void sensor_scene_usb_uart_close_rpc_on_enter(void* context) {
     SensorApp* app = context;
 
     widget_add_icon_element(app->widget, 78, 0, &I_ActiveConnection_50x64);
@@ -19,7 +19,7 @@ void gpio_scene_usb_uart_close_rpc_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewUsbUartCloseRpc);
 }
 
-bool gpio_scene_usb_uart_close_rpc_on_event(void* context, SceneManagerEvent event) {
+bool sensor_scene_usb_uart_close_rpc_on_event(void* context, SceneManagerEvent event) {
     SensorApp* app = context;
     bool consumed = false;
 
@@ -35,7 +35,7 @@ bool gpio_scene_usb_uart_close_rpc_on_event(void* context, SceneManagerEvent eve
     return consumed;
 }
 
-void gpio_scene_usb_uart_close_rpc_on_exit(void* context) {
+void sensor_scene_usb_uart_close_rpc_on_exit(void* context) {
     SensorApp* app = context;
     widget_reset(app->widget);
 }

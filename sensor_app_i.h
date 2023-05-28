@@ -15,6 +15,7 @@
 #include <gui/modules/widget.h>
 #include "views/sensor_test.h"
 #include "views/sensor_usb_uart.h"
+#include "views/sensor_IRCam.h"
 #include <assets_icons.h>
 
 struct SensorApp {
@@ -29,6 +30,7 @@ struct SensorApp {
     GpioTest* gpio_test;
     GpioUsbUart* gpio_usb_uart;
     GPIOItems* gpio_items;
+    //IRCamItems* IR_cam_items;
     UsbUartBridge* usb_uart_bridge;
     UsbUartConfig* usb_uart_cfg;
 };

@@ -10,7 +10,7 @@ typedef enum {
 } GpioScene;
 #undef ADD_SCENE
 
-extern const SceneManagerHandlers gpio_scene_handlers;
+extern const SceneManagerHandlers sensor_scene_handlers;
 
 // Generate scene on_enter handlers declaration
 #define ADD_SCENE(prefix, name, id) void prefix##_scene_##name##_on_enter(void*);

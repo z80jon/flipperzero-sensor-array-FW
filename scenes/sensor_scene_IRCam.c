@@ -1,6 +1,6 @@
 #include "../sensor_app_i.h"
 
-void sensor_scene_test_ok_callback(InputType type, void* context) {
+void sensor_scene_IRCam_ok_callback(InputType type, void* context) {
     furi_assert(context);
     SensorApp* app = context;
 
@@ -11,21 +11,21 @@ void sensor_scene_test_ok_callback(InputType type, void* context) {
     }
 }
 
-void sensor_scene_test_on_enter(void* context) {
+void sensor_scene_IRCam_on_enter(void* context) {
     furi_assert(context);
     SensorApp* app = context;
     gpio_items_configure_all_pins(app->gpio_items, GpioModeOutputPushPull);
-    gpio_test_set_ok_callback(app->gpio_test, sensor_scene_test_ok_callback, app);
-    view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewGpioTest);
+    sensor_IRCam_set_ok_callback(app->gpio_test, sensor_scene_IRCam_ok_callback, app);
+    view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewIRCam);
 }
 
-bool sensor_scene_test_on_event(void* context, SceneManagerEvent event) {
+bool sensor_scene_IRCam_on_event(void* context, SceneManagerEvent event) {
     UNUSED(context);
     UNUSED(event);
     return false;
 }
 
-void sensor_scene_test_on_exit(void* context) {
+void sensor_scene_IRCam_on_exit(void* context) {
     furi_assert(context);
     SensorApp* app = context;
     gpio_items_configure_all_pins(app->gpio_items, GpioModeAnalog);

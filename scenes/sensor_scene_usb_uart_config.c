@@ -28,7 +28,7 @@ static const uint32_t baudrate_list[] = {
     921600,
 };
 
-bool gpio_scene_usb_uart_cfg_on_event(void* context, SceneManagerEvent event) {
+bool sensor_scene_usb_uart_cfg_on_event(void* context, SceneManagerEvent event) {
     SensorApp* app = context;
     furi_assert(app);
     if(event.type == SceneManagerEventTypeCustom) {
@@ -114,7 +114,7 @@ static void line_baudrate_cb(VariableItem* item) {
     view_dispatcher_send_custom_event(app->view_dispatcher, GpioUsbUartEventConfigSet);
 }
 
-void gpio_scene_usb_uart_cfg_on_enter(void* context) {
+void sensor_scene_usb_uart_cfg_on_enter(void* context) {
     SensorApp* app = context;
     furi_assert(app);
     VariableItemList* var_item_list = app->var_item_list;
@@ -161,7 +161,7 @@ void gpio_scene_usb_uart_cfg_on_enter(void* context) {
     view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewUsbUartCfg);
 }
 
-void gpio_scene_usb_uart_cfg_on_exit(void* context) {
+void sensor_scene_usb_uart_cfg_on_exit(void* context) {
     SensorApp* app = context;
     scene_manager_set_scene_state(
         app->scene_manager,
