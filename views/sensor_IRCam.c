@@ -134,7 +134,10 @@ View* sensor_IRCam_get_view(GpioTest* sensor_IRCam) {
     return sensor_IRCam->view;
 }
 
-void sensor_IRCam_set_ok_callback(GpioTest* sensor_IRCam, GpioTestOkCallback callback, void* context) {
+void sensor_IRCam_set_ok_callback(
+    GpioTest* sensor_IRCam,
+    GpioTestOkCallback callback,
+    void* context) {
     furi_assert(sensor_IRCam);
     furi_assert(callback);
     with_view_model(
