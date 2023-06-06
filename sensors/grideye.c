@@ -48,15 +48,14 @@ GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     if(!furi_hal_i2c_is_device_ready(I2C_BUS, addr, I2C_TIMEOUT)) {
         return NULL;
     }
+    //Release the i2c bus as the function calls will want to acquire it themselves
+    furi_hal_i2c_release(I2C_BUS);
 
     //Struct setup
     GridEye* ge = (GridEye*)malloc(sizeof(GridEye));
     ge->addr = addr;
     ge->freshData = false;
     ge->status = GridEyeStatus_OK;
-
-    //Release the i2c bus as the function calls will want to acquire it themselves
-    furi_hal_i2c_release(I2C_BUS);
 
     //Make sure we're in normal mode
     gridEye_wake(ge);
@@ -84,8 +83,7 @@ eGridEyeStatus gridEye_getStatus(GridEye* ge) {
         return GridEyeStatus_Error;
     }
 
-    uint8_t status;
-    bool furi_hal_i2c_read_reg_8(I2C_BUS, ge->addr, POWER_CONTROL_REGISTER, &status, I2C_TIMEOUT);
+    uint8_t status = furi_hal_i2c_read_reg_8(I2C_BUS, ge->addr, POWER_CONTROL_REGISTER, &status, I2C_TIMEOUT);
 
     switch(status) {
     case POWER__NORMAL_MODE:
