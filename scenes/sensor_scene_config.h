@@ -1,6 +1,0 @@
-ADD_SCENE(sensor, start, Start)
-ADD_SCENE(sensor, test, Test)
-ADD_SCENE(sensor, usb_uart, UsbUart)
-ADD_SCENE(sensor, usb_uart_cfg, UsbUartCfg)
-ADD_SCENE(sensor, usb_uart_close_rpc, UsbUartCloseRpc)
-ADD_SCENE(sensor, IRCam, IRCam)

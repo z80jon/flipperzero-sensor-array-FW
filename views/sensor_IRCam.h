@@ -1,16 +1,18 @@
 #pragma once
 
-#include "../sensor_items.h"
+#include "../sensor_app_i.h"
 
 #include <gui/view.h>
 
-typedef struct GpioTest GpioTest;
 typedef void (*GpioTestOkCallback)(InputType type, void* context);
 
-GpioTest* sensor_IRCam_alloc(GPIOItems* gpio_items);
+SensorIRCam* sensor_IRCam_alloc(SensorApp* app);
 
-void sensor_IRCam_free(GpioTest* sensor_IRCam);
+void sensor_IRCam_free(SensorIRCam* sensor_IRCam);
 
-View* sensor_IRCam_get_view(GpioTest* sensor_IRCam);
+View* sensor_IRCam_get_view(SensorIRCam* sensor_IRCam);
 
-void sensor_IRCam_set_ok_callback(GpioTest* sensor_IRCam, GpioTestOkCallback callback, void* context);
+void sensor_IRCam_set_ok_callback(
+    SensorIRCam* sensor_IRCam,
+    GpioTestOkCallback callback,
+    void* context);
