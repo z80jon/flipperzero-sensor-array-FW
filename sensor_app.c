@@ -64,11 +64,10 @@ void sensor_app_free(SensorApp* app) {
     // Views
     view_dispatcher_remove_view(app->view_dispatcher, SensorAppViewMenu);
     view_dispatcher_remove_view(app->view_dispatcher, SensorAppViewIRCam);
+    //view_dispatcher_remove_view(app->view_dispatcher, SensorAppViewSettings);
     variable_item_list_free(app->var_item_list);
     widget_free(app->widget);
-    //view_IRCam_free(app->grideye); TODO fix issues with this
-    //gpio_test_free(app->gpio_test);
-    //gpio_usb_uart_free(app->gpio_usb_uart);
+    view_IRCam_free(app->SensorIRCam);
 
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);
@@ -78,7 +77,6 @@ void sensor_app_free(SensorApp* app) {
     furi_record_close(RECORD_GUI);
     furi_record_close(RECORD_NOTIFICATION);
 
-    //gpio_items_free(app->gpio_items);
     free(app);
 }
 

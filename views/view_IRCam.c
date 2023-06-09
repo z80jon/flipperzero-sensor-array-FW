@@ -25,7 +25,7 @@ static void view_IRCam_draw_callback(Canvas* canvas, void* _model) {
     //Draw the 8x8 grid of pixels
     for(uint8_t y = 0; y < 8; y++) {
         for(uint8_t x = 0; x < 8; x++) {
-            if(x % 2 == 0) {
+            if((x + y) % 2 == 0) {
                 canvas_draw_icon_ex(canvas, x * 8, y * 8, &I_grayscale_8x8_4, IconRotation0);
             } else {
                 canvas_draw_icon_ex(canvas, x * 8, y * 8, &I_grayscale_8x8_0, IconRotation0);
@@ -93,7 +93,6 @@ void view_IRCam_free(SensorIRCam* view_IRCam) {
     furi_assert(view_IRCam);
     view_free(view_IRCam->view);
     gridEye_free(view_IRCam->ge);
-    //TODO free things properly
     free(view_IRCam);
 }
 

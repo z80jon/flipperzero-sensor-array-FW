@@ -172,7 +172,6 @@ uint8_t gridEye_getTemperatureGrayscale(GridEye* ge, uint8_t pixelAddr) {
 int gridEye_free(GridEye* ge) {
     if(ge == NULL) return 1;
 
-    free(ge->tempData);
     free(ge);
     return 0;
 }
