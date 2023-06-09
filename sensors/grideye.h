@@ -28,6 +28,8 @@ typedef struct {
 
     eGridEyeFramerate frameRate; //< Current rate at which new images will be captured
     uint8_t tempData[128]; //< Unprocessed 12-bit temp data. Check datasheet for details.
+    float min; //< The min value seen in the current frame of temperatures
+    float max; //< The max value seen in the current frame of temperatures
     bool freshData; //< Set to 'true' when fresh data is captured. Cleared next cycle.
 } GridEye;
 
@@ -84,7 +86,7 @@ int gridEye_update(GridEye* ge);
 /**
  * @brief Returns the current value of the specified pixel of the AMG88xx instance as a floating-point value
  * 
- * @param ge 
+ * @param ge the GridEye instance
  * @param pixelAddr the pixel address on a mapping of 0...63, from top left to top right, top+1 left to top+1 right, and so on.
  * @return float the temperature, in Celsius.
  */
@@ -93,11 +95,23 @@ float gridEye_getTemperature(GridEye* ge, uint8_t pixelAddr);
 /**
  * @brief Returns the current value of the specified pixel of the AMG88xx instance as an integer
  * 
- * @param ge 
+ * @param ge the GridEye instance
  * @param pixelAddr the pixel address on a mapping of 0...63, from top left to top right, top+1 left to top+1 right, and so on.
  * @return int16_t the temperature as a whole integer, in Celsius.
  */
 int16_t gridEye_getTemperatureInt(GridEye* ge, uint8_t pixelAddr);
+
+/**
+ * @brief Returns the current value of the specified pixel of the AMG88xx instance as a value of
+ *        0-8 for grayscale rendering (0 = min, 8 = max). It uses the min and max temperatures of
+ *        the current frame to create 9 regions of temperatures, which it uses to determine which
+ *        region the specified pixel should fall into.
+ * 
+ * @param ge the GridEye instance
+ * @param pixelAddr the pixel address on a mapping of 0...63, from top left to top right, top+1 left to top+1 right, and so on.
+ * @return uint8_t the temperature normalized to a scale of 0-8 (see brief)
+ */
+uint8_t gridEye_getTemperatureGrayscale(GridEye* ge, uint8_t pixelAddr);
 
 /**
  * @brief Puts the GridEye to sleep and frees up the allocated GridEye object

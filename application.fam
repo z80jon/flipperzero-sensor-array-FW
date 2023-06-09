@@ -5,7 +5,8 @@ App(
     entry_point="sensor_app",
     requires=["gui"],
     stack_size=1 * 1024,
-    fap_icon="flask.png",
+    fap_icon= "flask.png",
     order=50,
     fap_libs=["assets"],
+    fap_icon_assets = "images"
 )

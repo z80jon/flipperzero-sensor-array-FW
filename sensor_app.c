@@ -1,5 +1,5 @@
 #include "sensor_app_i.h"
-#include "views/sensor_IRCam.h"
+#include "views/view_IRCam.h"
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -45,14 +45,12 @@ SensorApp* sensor_app_alloc() {
 
     app->var_item_list = variable_item_list_alloc();
     view_dispatcher_add_view(
-        app->view_dispatcher,
-        SensorAppViewVarItemList,
-        variable_item_list_get_view(app->var_item_list));
+        app->view_dispatcher, SensorAppViewMenu, variable_item_list_get_view(app->var_item_list));
     app->widget = widget_alloc();
 
-    app->SensorIRCam = sensor_IRCam_alloc(app);
+    app->SensorIRCam = view_IRCam_alloc(app);
     view_dispatcher_add_view(
-        app->view_dispatcher, SensorAppViewIRCam, sensor_IRCam_get_view(app->SensorIRCam));
+        app->view_dispatcher, SensorAppViewIRCam, view_IRCam_get_view(app->SensorIRCam));
     //TODO use correct structure?
 
     scene_manager_next_scene(app->scene_manager, SensorSceneMenu);
@@ -64,11 +62,11 @@ void sensor_app_free(SensorApp* app) {
     furi_assert(app);
 
     // Views
-    view_dispatcher_remove_view(app->view_dispatcher, SensorAppViewVarItemList);
+    view_dispatcher_remove_view(app->view_dispatcher, SensorAppViewMenu);
     view_dispatcher_remove_view(app->view_dispatcher, SensorAppViewIRCam);
     variable_item_list_free(app->var_item_list);
     widget_free(app->widget);
-    //sensor_IRCam_free(app->grideye); TODO fix issues with this
+    //view_IRCam_free(app->grideye); TODO fix issues with this
     //gpio_test_free(app->gpio_test);
     //gpio_usb_uart_free(app->gpio_usb_uart);
 

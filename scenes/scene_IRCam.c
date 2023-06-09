@@ -5,7 +5,7 @@ void sensor_scene_IRCam_ok_callback(InputType type, void* context) {
     SensorApp* app = context;
 
     if(type == InputTypePress) {
-        notification_message(app->notifications, &sequence_set_green_255);
+        notification_message(app->notifications, &sequence_set_blue_255);
     } else if(type == InputTypeRelease) {
         notification_message(app->notifications, &sequence_reset_green);
     }
@@ -16,7 +16,7 @@ void sensor_scene_IRCam_on_enter(void* context) {
     SensorApp* app = context;
     //gpio_items_configure_all_pins(app->gpio_items, GpioModeOutputPushPull);
     //TODO initialize grideye
-    sensor_IRCam_set_ok_callback(app->SensorIRCam, sensor_scene_IRCam_ok_callback, app);
+    view_IRCam_set_ok_callback(app->SensorIRCam, sensor_scene_IRCam_ok_callback, app);
     view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewIRCam);
 }
 

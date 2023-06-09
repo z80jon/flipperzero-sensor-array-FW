@@ -37,9 +37,9 @@ void sensor_scene_menu_on_enter(void* context) {
     variable_item_list_add(var_item_list, "Settings", 0, NULL, NULL);
 
     variable_item_list_set_selected_item(
-        var_item_list, scene_manager_get_scene_state(app->scene_manager, MenuItemIRCam));
+        var_item_list, scene_manager_get_scene_state(app->scene_manager, SensorSceneMenu));
 
-    view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewVarItemList);
+    view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewMenu);
 }
 
 bool sensor_scene_menu_on_event(void* context, SceneManagerEvent event) {
@@ -64,7 +64,7 @@ bool sensor_scene_menu_on_event(void* context, SceneManagerEvent event) {
         //     }
         if(event.event == SensorItemEventStartIRCam) {
             scene_manager_set_scene_state(app->scene_manager, SensorSceneMenu, MenuItemIRCam);
-            scene_manager_next_scene(app->scene_manager, MenuItemIRCam);
+            scene_manager_next_scene(app->scene_manager, SensorSceneIRCam);
         }
         consumed = true;
     }

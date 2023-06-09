@@ -34,11 +34,4 @@ struct SensorApp {
     SensorIRCam* SensorIRCam;
 };
 
-typedef enum {
-    SensorAppViewVarItemList,
-    SensorAppViewGpioTest,
-    SensorAppViewUsbUart,
-    SensorAppViewUsbUartCfg,
-    SensorAppViewUsbUartCloseRpc,
-    SensorAppViewIRCam
-} SensorAppView;
+typedef enum { SensorAppViewMenu, SensorAppViewIRCam, SensorAppViewSettings } SensorAppView;
