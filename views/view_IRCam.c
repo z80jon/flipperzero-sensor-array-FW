@@ -17,8 +17,9 @@ typedef struct {
 static void view_IRCam_draw_callback(Canvas* canvas, void* _model) {
     IRCamModel* model = _model;
     UNUSED(model);
-    //GridEye* ge = model->IRCam->ge;
-    //gridEye_update(ge);
+    furi_check(model->IRCam->ge != NULL);
+    gridEye_update(ge);
+
     canvas_set_font(canvas, FontPrimary);
     elements_multiline_text_aligned(canvas, 64, 2, AlignCenter, AlignTop, "GPIO Output Mode Test");
 
@@ -78,7 +79,6 @@ SensorIRCam* view_IRCam_alloc(SensorApp* app) {
     UNUSED(app);
     view_IRCam->view = view_alloc();
     view_allocate_model(view_IRCam->view, ViewModelTypeLocking, sizeof(IRCamModel));
-    view_IRCam->ge = gridEye_init(0x00, GridEyeFrameRate_10FPS);
 
     with_view_model(
         view_IRCam->view, IRCamModel * model, { model->IRCam = view_IRCam; }, false);
@@ -93,7 +93,7 @@ SensorIRCam* view_IRCam_alloc(SensorApp* app) {
 void view_IRCam_free(SensorIRCam* view_IRCam) {
     furi_assert(view_IRCam);
     view_free(view_IRCam->view);
-    gridEye_free(view_IRCam->ge);
+    if(view_IRCam->ge != NULL) gridEye_free(view_IRCam->ge);
     free(view_IRCam);
 }
 

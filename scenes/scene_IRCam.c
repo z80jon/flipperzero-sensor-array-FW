@@ -14,7 +14,8 @@ void sensor_scene_IRCam_ok_callback(InputType type, void* context) {
 void sensor_scene_IRCam_on_enter(void* context) {
     furi_assert(context);
     SensorApp* app = context;
-    //gpio_items_configure_all_pins(app->gpio_items, GpioModeOutputPushPull);
+    app->SensorIRCam->ge = gridEye_init(0x00, GridEyeFrameRate_10FPS);
+    //TODO change address to correct one
     //TODO initialize grideye
     //view_IRCam_set_ok_callback(app->SensorIRCam, sensor_scene_IRCam_ok_callback, app);
     //TODO investigate

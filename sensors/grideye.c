@@ -38,10 +38,7 @@
 GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     //Make sure the module is there before we do anything
     furi_hal_i2c_acquire(I2C_BUS);
-    if(!furi_hal_i2c_is_device_ready(I2C_BUS, addr, I2C_TIMEOUT)) {
-        return NULL;
-    }
-    //Release the i2c bus as the function calls will want to acquire it themselves
+    furi_check(furi_hal_i2c_is_device_ready(I2C_BUS, addr, I2C_TIMEOUT));
     furi_hal_i2c_release(I2C_BUS);
 
     //Struct setup
@@ -63,12 +60,7 @@ GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
 
 eGridEyeStatus gridEye_getStatus(GridEye* ge) {
     furi_hal_i2c_acquire(I2C_BUS);
-
-    //Make sure we can talk to the AMG8833
-    if(furi_hal_i2c_is_device_ready(I2C_BUS, ge->addr, I2C_TIMEOUT) == false) {
-        ge->status = GridEyeStatus_Error;
-        return GridEyeStatus_Error;
-    }
+    furi_check(furi_hal_i2c_is_device_ready(I2C_BUS, ge->addr, I2C_TIMEOUT));
 
     uint8_t status =
         furi_hal_i2c_read_reg_8(I2C_BUS, ge->addr, POWER_CONTROL_REGISTER, &status, I2C_TIMEOUT);
