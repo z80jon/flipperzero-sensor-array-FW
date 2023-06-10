@@ -28,7 +28,6 @@ struct SensorApp {
     Widget* widget;
 
     VariableItemList* var_item_list;
-    VariableItem* var_item_flow;
 
     //Sensor-specific params
     SensorIRCam* SensorIRCam;

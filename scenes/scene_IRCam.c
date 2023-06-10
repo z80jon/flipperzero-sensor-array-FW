@@ -16,7 +16,8 @@ void sensor_scene_IRCam_on_enter(void* context) {
     SensorApp* app = context;
     //gpio_items_configure_all_pins(app->gpio_items, GpioModeOutputPushPull);
     //TODO initialize grideye
-    view_IRCam_set_ok_callback(app->SensorIRCam, sensor_scene_IRCam_ok_callback, app);
+    //view_IRCam_set_ok_callback(app->SensorIRCam, sensor_scene_IRCam_ok_callback, app);
+    //TODO investigate
     view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewIRCam);
 }
 
@@ -30,5 +31,6 @@ void sensor_scene_IRCam_on_exit(void* context) {
     furi_assert(context);
     SensorApp* app = context;
     //gpio_items_configure_all_pins(app->gpio_items, GpioModeAnalog);
+    UNUSED(app);
     //TODO fixme
 }

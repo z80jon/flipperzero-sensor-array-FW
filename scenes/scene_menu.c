@@ -22,13 +22,14 @@ static void sensor_scene_menu_var_list_enter_callback(void* context, uint32_t in
 static void sensor_scene_menu_var_list_change_callback(VariableItem* item) {
     SensorApp* app = variable_item_get_context(item);
     uint8_t index = variable_item_get_current_value_index(item);
+    UNUSED(index);
+    UNUSED(app);
 }
 
 void sensor_scene_menu_on_enter(void* context) {
     SensorApp* app = context;
     VariableItemList* var_item_list = app->var_item_list;
 
-    VariableItem* item;
     variable_item_list_set_enter_callback(
         var_item_list, sensor_scene_menu_var_list_enter_callback, app);
 

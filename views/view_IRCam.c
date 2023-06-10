@@ -68,6 +68,7 @@ static bool view_IRCam_process_ok(SensorIRCam* view_IRCam, InputEvent* event) {
     with_view_model(
         view_IRCam->view, IRCamModel * model, { UNUSED(model); }, true);
     bool consumed = true;
+    UNUSED(event);
     return consumed;
 }
 
@@ -116,4 +117,5 @@ void view_IRCam_set_ok_callback(
             //view_IRCam->context = context;
         },
         true);
+    UNUSED(context);
 }
