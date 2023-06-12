@@ -8,7 +8,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#define GRIDEYE_DEFAULT_ADDRESS 0x69
+#define GRIDEYE_DEFAULT_ADDRESS 0x69 << 1
 
 typedef enum {
     GridEyeStatus_OK, //< GridEye is operating normally

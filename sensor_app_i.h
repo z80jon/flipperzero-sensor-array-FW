@@ -14,6 +14,10 @@
 #include <gui/modules/widget.h>
 #include <assets_icons.h>
 
+//I2C bus settings
+#define I2C_TIMEOUT 10
+#define I2C_BUS &furi_hal_i2c_handle_external
+
 typedef struct {
     View* view;
     void* context;

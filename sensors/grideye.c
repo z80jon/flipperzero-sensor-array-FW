@@ -1,4 +1,5 @@
 #include "grideye.h"
+#include "../sensor_app_i.h"
 #include <furi_hal_i2c.h>
 #include <furi_hal_i2c_config.h>
 #include <unistd.h>
@@ -10,10 +11,6 @@
 
 //Number of temperature 'bins' (for grayscale data generation)
 #define NUM_TEMPERATURE_BINS 9
-
-//I2C bus settings
-#define I2C_BUS &furi_hal_i2c_handle_external
-#define I2C_TIMEOUT 10
 
 //Registers
 #define REGISTER_POWER_CONTROL 0x00 //< Register to set the amg8833 to wake/sleep
