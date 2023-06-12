@@ -8,8 +8,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#define I2C_BUS &furi_hal_i2c_handle_external
-#define I2C_TIMEOUT 10
+#define GRIDEYE_DEFAULT_ADDRESS 0x69
 
 typedef enum {
     GridEyeStatus_OK, //< GridEye is operating normally
@@ -28,6 +27,7 @@ typedef struct {
 
     eGridEyeFramerate frameRate; //< Current rate at which new images will be captured
     uint8_t tempData[128]; //< Unprocessed 12-bit temp data. Check datasheet for details.
+    uint8_t tempDataBins[64]; //< Processed temperature data into 9-level grayscale bins
     float min; //< The min value seen in the current frame of temperatures
     float max; //< The max value seen in the current frame of temperatures
     bool freshData; //< Set to 'true' when fresh data is captured. Cleared next cycle.

@@ -3,6 +3,11 @@
 
 #include <gui/elements.h>
 #include <gui/canvas.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "string.h"
+
 #include "sensor_array_icons.h"
 
 static bool view_IRCam_process_left(SensorIRCam* view_IRCam);
@@ -18,18 +23,65 @@ static void view_IRCam_draw_callback(Canvas* canvas, void* _model) {
     IRCamModel* model = _model;
     UNUSED(model);
     furi_check(model->IRCam->ge != NULL);
+    GridEye* ge = model->IRCam->ge;
+    canvas_set_font(canvas, FontSecondary);
+    canvas_draw_str(canvas, 75, 8, "AMG8833");
+    canvas_draw_str(canvas, 14, 33, "Working...");
     gridEye_update(ge);
 
-    canvas_set_font(canvas, FontPrimary);
-    elements_multiline_text_aligned(canvas, 64, 2, AlignCenter, AlignTop, "GPIO Output Mode Test");
+    FuriString* buff = furi_string_alloc();
+
+    furi_string_printf(buff, "Max: %.1FC", (double)ge->max);
+    canvas_draw_str(canvas, 75, 36, furi_string_get_cstr(buff));
+    furi_string_printf(buff, "Min: %.1FC", (double)ge->min);
+    canvas_draw_str(canvas, 75, 26, furi_string_get_cstr(buff));
+
+    furi_string_free(buff);
 
     //Draw the 8x8 grid of pixels
     for(uint8_t y = 0; y < 8; y++) {
         for(uint8_t x = 0; x < 8; x++) {
-            if((x + y) % 2 == 0) {
-                canvas_draw_icon_ex(canvas, x * 8, y * 8, &I_grayscale_8x8_4, IconRotation0);
-            } else {
-                canvas_draw_icon_ex(canvas, x * 8, y * 8, &I_grayscale_8x8_0, IconRotation0);
+            switch(gridEye_getTemperatureGrayscale(ge, y * 8 + x)) {
+            case 0:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_0, IconRotation0);
+                break;
+            case 1:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_1, IconRotation0);
+                break;
+            case 2:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_2, IconRotation0);
+                break;
+            case 3:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_3, IconRotation0);
+                break;
+            case 4:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_4, IconRotation0);
+                break;
+            case 5:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_5, IconRotation0);
+                break;
+            case 6:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_6, IconRotation0);
+                break;
+            case 7:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_7, IconRotation0);
+                break;
+            case 8:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_8, IconRotation0);
+                break;
+            default:
+                canvas_draw_icon_ex(
+                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_8, IconRotation0);
+                break;
             }
         }
     }

@@ -7,33 +7,23 @@
 #include <furi.h>
 #include <furi_hal.h>
 #include <math.h>
+
+//Number of temperature 'bins' (for grayscale data generation)
+#define NUM_TEMPERATURE_BINS 9
+
+//I2C bus settings
+#define I2C_BUS &furi_hal_i2c_handle_external
+#define I2C_TIMEOUT 10
+
 //Registers
-
-#define DEFAULT_ADDRESS 0x69
-
 #define POWER_CONTROL_REGISTER 0x00
+#define FRAMERATE_REGISTER 0x02
+#define STATUS_REGISTER 0x04
+#define TEMPERATURE_REGISTER_START 0x80
+
+//Power settings
 #define POWER__NORMAL_MODE 0x00
 #define POWER__SLEEP_MODE 0x10
-
-#define RESET_REGISTER 0x01
-
-#define FRAMERATE_REGISTER 0x02
-
-#define INT_CONTROL_REGISTER 0x03
-#define STATUS_REGISTER 0x04
-#define STATUS_CLEAR_REGISTER 0x05
-#define AVERAGE_REGISTER 0x07
-#define INT_LEVEL_REGISTER_UPPER_LSB 0x08
-#define INT_LEVEL_REGISTER_UPPER_MSB 0x09
-#define INT_LEVEL_REGISTER_LOWER_LSB 0x0A
-#define INT_LEVEL_REGISTER_LOWER_MSB 0x0B
-#define INT_LEVEL_REGISTER_HYST_LSB 0x0C
-#define INT_LEVEL_REGISTER_HYST_MSB 0x0D
-#define THERMISTOR_REGISTER_LSB 0x0E
-#define THERMISTOR_REGISTER_MSB 0x0F
-#define INT_TABLE_REGISTER_INT0 0x10
-#define RESERVED_AVERAGE_REGISTER 0x1F
-#define TEMPERATURE_REGISTER_START 0x80
 
 GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     //Make sure the module is there before we do anything
@@ -48,10 +38,10 @@ GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     ge->status = GridEyeStatus_OK;
 
     //Make sure we're in normal mode
-    gridEye_wake(ge);
+    furi_check(gridEye_wake(ge) == 0);
 
     //Set framerate to normal
-    furi_assert(gridEye_setFrameRate(ge, frameRate) == 0);
+    furi_check(gridEye_setFrameRate(ge, frameRate) == 0);
 
     //TODO setup defaults (add #define in .c), update status
 
@@ -126,25 +116,48 @@ int gridEye_wake(GridEye* ge) {
 }
 
 int gridEye_update(GridEye* ge) {
-    if(gridEye_getStatus(ge) != GridEyeStatus_OK) return 1;
+    furi_check(ge != NULL);
 
+    //Grab temperatures
     furi_hal_i2c_acquire(I2C_BUS);
-
-    furi_assert(furi_hal_i2c_read_mem(
-        I2C_BUS, ge->addr, TEMPERATURE_REGISTER_START, ge->tempData, 128, I2C_TIMEOUT));
-
+    furi_check(furi_hal_i2c_read_mem(
+        I2C_BUS, ge->addr, TEMPERATURE_REGISTER_START, ge->tempData, 128, 100));
     furi_hal_i2c_release(I2C_BUS);
+
+    //Update min and max
+    ge->max = gridEye_getTemperature(ge, 0);
+    ge->min = ge->max;
+    for(uint8_t i = 0; i < 64; i++) {
+        float temperature = gridEye_getTemperature(ge, i);
+        if(temperature > ge->max) ge->max = temperature;
+        if(temperature < ge->min) ge->min = temperature;
+    }
+
+    //Create 9 'bins' we can split the data into and calculate where the 'separators' between them should be based on max vs min
+    float binSeparators[NUM_TEMPERATURE_BINS];
+    float interval = (ge->max - ge->min) / NUM_TEMPERATURE_BINS;
+    for(uint8_t i = 0; i < NUM_TEMPERATURE_BINS; i++) binSeparators[i] = ge->min + (interval * i);
+
+    //Sort each of the 64 pixels into its respective bin
+    for(uint8_t i = 0; i < 64; i++) {
+        float temp = gridEye_getTemperature(ge, i);
+        for(uint8_t b = 0; b < NUM_TEMPERATURE_BINS && temp > binSeparators[b]; b++)
+            ge->tempDataBins[i] = b;
+    }
+
     return 0;
 }
 
 float gridEye_getTemperature(GridEye* ge, uint8_t pixelAddr) {
-    if(pixelAddr > 63) return -999;
-    if(ge->status != GridEyeStatus_OK) return (float)-999;
+    furi_check(pixelAddr < 64);
+    furi_check(ge != NULL);
+    //if(ge->status != GridEyeStatus_OK) return (float)-999;
+    uint16_t temp_raw = ((ge->tempData[pixelAddr * 2 + 1] & 0x07) << 8) |
+                        ge->tempData[pixelAddr * 2];
 
-    float temperature = ((ge->tempData[pixelAddr * 2] & 0x07) << 8) |
-                        ge->tempData[pixelAddr * 2 + 1];
+    float temperature = ((float)temp_raw) * 0.25;
 
-    if((ge->tempData[pixelAddr * 2] | 0x08) == 1) //Sign bit check
+    if((ge->tempData[pixelAddr * 2 + 1] | 0x08) == 1) //Sign bit check
         temperature = -temperature;
 
     return temperature;
@@ -155,15 +168,14 @@ int16_t gridEye_getTemperatureInt(GridEye* ge, uint8_t pixelAddr) {
 }
 
 uint8_t gridEye_getTemperatureGrayscale(GridEye* ge, uint8_t pixelAddr) {
-    float min_abs = fabs(ge->min);
-    return (uint8_t)((gridEye_getTemperature(ge, pixelAddr) + min_abs) /
-                     ((ge->max + min_abs) / 9));
-    //TODO make sure this works
+    furi_check(ge != NULL);
+    furi_check(pixelAddr < 64);
+    return ge->tempDataBins[pixelAddr];
 }
 
 int gridEye_free(GridEye* ge) {
-    if(ge == NULL) return 1;
-
+    furi_assert(ge != NULL);
+    gridEye_sleep(ge);
     free(ge);
     return 0;
 }

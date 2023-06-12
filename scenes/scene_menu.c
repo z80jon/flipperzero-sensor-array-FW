@@ -19,12 +19,12 @@ static void sensor_scene_menu_var_list_enter_callback(void* context, uint32_t in
     }
 }
 
-static void sensor_scene_menu_var_list_change_callback(VariableItem* item) {
-    SensorApp* app = variable_item_get_context(item);
-    uint8_t index = variable_item_get_current_value_index(item);
-    UNUSED(index);
-    UNUSED(app);
-}
+// static void sensor_scene_menu_var_list_change_callback(VariableItem* item) {
+//     SensorApp* app = variable_item_get_context(item);
+//     uint8_t index = variable_item_get_current_value_index(item);
+//     UNUSED(index);
+//     UNUSED(app);
+// }
 
 void sensor_scene_menu_on_enter(void* context) {
     SensorApp* app = context;
