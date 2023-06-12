@@ -44,6 +44,15 @@ typedef struct {
 GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate);
 
 /**
+ * @brief Checks if the specified GridEye is present on the bus
+ * 
+ * @param addr the GridEye address
+ * @return true the device is ready
+ * @return false the device is not present on the bus
+ */
+bool gridEye_isReady(uint8_t addr);
+
+/**
  * @brief Updates and returns the status of the current gridEye object
  * 
  * @param ge the GridEye instant to check the status of

@@ -33,7 +33,11 @@ void sensor_scene_menu_on_enter(void* context) {
     variable_item_list_set_enter_callback(
         var_item_list, sensor_scene_menu_var_list_enter_callback, app);
 
-    variable_item_list_add(var_item_list, "IR Imager", 0, NULL, NULL);
+    if(gridEye_isReady(GRIDEYE_DEFAULT_ADDRESS)) {
+        variable_item_list_add(var_item_list, "IR Imager", 0, NULL, NULL);
+    } else {
+        variable_item_list_add(var_item_list, "IR Imager (unavailable)", 0, NULL, NULL);
+    }
 
     variable_item_list_add(var_item_list, "Settings", 0, NULL, NULL);
 
@@ -63,7 +67,7 @@ bool sensor_scene_menu_on_event(void* context, SceneManagerEvent event) {
         //     } else {
         //         scene_manager_next_scene(app->scene_manager, GpioSceneUsbUartCloseRpc);
         //     }
-        if(event.event == SensorItemEventStartIRCam) {
+        if(event.event == SensorItemEventStartIRCam && gridEye_isReady(GRIDEYE_DEFAULT_ADDRESS)) {
             scene_manager_set_scene_state(app->scene_manager, SensorSceneMenu, MenuItemIRCam);
             scene_manager_next_scene(app->scene_manager, SensorSceneIRCam);
         }

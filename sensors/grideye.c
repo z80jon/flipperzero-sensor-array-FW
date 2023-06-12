@@ -25,9 +25,7 @@
 
 GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     //Make sure the module is there before we do anything
-    furi_hal_i2c_acquire(I2C_BUS);
-    furi_check(furi_hal_i2c_is_device_ready(I2C_BUS, addr, I2C_TIMEOUT));
-    furi_hal_i2c_release(I2C_BUS);
+    furi_check(gridEye_isReady(addr));
 
     //Struct setup
     GridEye* ge = (GridEye*)malloc(sizeof(GridEye));
@@ -41,9 +39,15 @@ GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     //Set framerate to normal
     furi_check(gridEye_setFrameRate(ge, frameRate) == 0);
 
-    //TODO setup defaults (add #define in .c), update status
-
     return ge;
+}
+
+bool gridEye_isReady(uint8_t addr) {
+    furi_hal_i2c_acquire(I2C_BUS);
+    bool isReady = false;
+    if(furi_hal_i2c_is_device_ready(I2C_BUS, addr, I2C_TIMEOUT)) isReady = true;
+    furi_hal_i2c_release(I2C_BUS);
+    return isReady;
 }
 
 eGridEyeStatus gridEye_getStatus(GridEye* ge) {
