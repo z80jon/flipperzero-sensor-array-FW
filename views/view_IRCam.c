@@ -13,6 +13,12 @@
 static bool view_IRCam_process_left(SensorIRCam* view_IRCam);
 static bool view_IRCam_process_right(SensorIRCam* view_IRCam);
 static bool view_IRCam_process_ok(SensorIRCam* view_IRCam, InputEvent* event);
+static void grayscale_render(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t grayscale_value,
+    IconRotation rotation);
 
 typedef struct {
     SensorIRCam* IRCam;
@@ -41,48 +47,12 @@ static void view_IRCam_draw_callback(Canvas* canvas, void* _model) {
     //Draw the 8x8 grid of pixels
     for(uint8_t y = 0; y < 8; y++) {
         for(uint8_t x = 0; x < 8; x++) {
-            switch(gridEye_getTemperatureGrayscale(ge, y * 8 + x)) {
-            case 0:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_0, IconRotation0);
-                break;
-            case 1:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_1, IconRotation0);
-                break;
-            case 2:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_2, IconRotation0);
-                break;
-            case 3:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_3, IconRotation0);
-                break;
-            case 4:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_4, IconRotation0);
-                break;
-            case 5:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_5, IconRotation0);
-                break;
-            case 6:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_6, IconRotation0);
-                break;
-            case 7:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_7, IconRotation0);
-                break;
-            case 8:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_8, IconRotation0);
-                break;
-            default:
-                canvas_draw_icon_ex(
-                    canvas, 64 - x * 8, 64 - y * 8, &I_grayscale_8x8_8, IconRotation0);
-                break;
-            }
+            grayscale_render(
+                canvas,
+                64 - x * 8,
+                64 - y * 8,
+                gridEye_getTemperatureGrayscale(ge, y * 8 + x),
+                IconRotation0);
         }
     }
 }
@@ -170,4 +140,46 @@ void view_IRCam_set_ok_callback(
         },
         true);
     UNUSED(context);
+}
+
+static void grayscale_render(
+    Canvas* canvas,
+    uint8_t x,
+    uint8_t y,
+    uint8_t grayscale_value,
+    IconRotation rotation) {
+    //TODO change to pound define, unify with grideye.c binning algorithm pound define
+    furi_assert(grayscale_value < 9);
+    switch(grayscale_value) {
+    case 0:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_0, rotation);
+        break;
+    case 1:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_1, rotation);
+        break;
+    case 2:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_2, rotation);
+        break;
+    case 3:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_3, rotation);
+        break;
+    case 4:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_4, rotation);
+        break;
+    case 5:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_5, rotation);
+        break;
+    case 6:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_6, rotation);
+        break;
+    case 7:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_7, rotation);
+        break;
+    case 8:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_8, rotation);
+        break;
+    default:
+        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_8, rotation);
+        break;
+    }
 }

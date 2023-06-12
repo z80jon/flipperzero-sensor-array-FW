@@ -16,10 +16,11 @@
 #define I2C_TIMEOUT 10
 
 //Registers
-#define POWER_CONTROL_REGISTER 0x00
-#define FRAMERATE_REGISTER 0x02
-#define STATUS_REGISTER 0x04
-#define TEMPERATURE_REGISTER_START 0x80
+#define REGISTER_POWER_CONTROL 0x00 //< Register to set the amg8833 to wake/sleep
+#define REGISTER_FRAMERATE 0x02 //< Register to set framerate to 1 vs 10fps
+#define REGISTER_STATUS 0x04 //< Shows current status of AMG8833
+#define REGISTER_TEMPERATURE_BASE_ADDR \
+    0x80 //< Base address of the 128 temperature registers for the IR imager
 
 //Power settings
 #define POWER__NORMAL_MODE 0x00
@@ -53,7 +54,7 @@ eGridEyeStatus gridEye_getStatus(GridEye* ge) {
     furi_check(furi_hal_i2c_is_device_ready(I2C_BUS, ge->addr, I2C_TIMEOUT));
 
     uint8_t status =
-        furi_hal_i2c_read_reg_8(I2C_BUS, ge->addr, POWER_CONTROL_REGISTER, &status, I2C_TIMEOUT);
+        furi_hal_i2c_read_reg_8(I2C_BUS, ge->addr, REGISTER_POWER_CONTROL, &status, I2C_TIMEOUT);
 
     switch(status) {
     case POWER__NORMAL_MODE:
@@ -82,7 +83,7 @@ int gridEye_setFrameRate(GridEye* ge, eGridEyeFramerate frameRate) {
     //The framerate enums equate to the actual register value to write, so just send them
     //If it doesn't go through, we fail the check.
     furi_assert(
-        furi_hal_i2c_write_reg_8(I2C_BUS, ge->addr, FRAMERATE_REGISTER, frameRate, I2C_TIMEOUT));
+        furi_hal_i2c_write_reg_8(I2C_BUS, ge->addr, REGISTER_FRAMERATE, frameRate, I2C_TIMEOUT));
 
     //Update the data structure
     ge->frameRate = frameRate;
@@ -95,7 +96,7 @@ int gridEye_sleep(GridEye* ge) {
     furi_hal_i2c_acquire(I2C_BUS);
 
     furi_check(furi_hal_i2c_write_reg_8(
-        I2C_BUS, ge->addr, POWER_CONTROL_REGISTER, POWER__SLEEP_MODE, I2C_TIMEOUT));
+        I2C_BUS, ge->addr, REGISTER_POWER_CONTROL, POWER__SLEEP_MODE, I2C_TIMEOUT));
 
     ge->status = GridEyeStatus_Sleep;
 
@@ -107,7 +108,7 @@ int gridEye_wake(GridEye* ge) {
     furi_hal_i2c_acquire(I2C_BUS);
 
     furi_check(furi_hal_i2c_write_reg_8(
-        I2C_BUS, ge->addr, POWER_CONTROL_REGISTER, POWER__NORMAL_MODE, I2C_TIMEOUT));
+        I2C_BUS, ge->addr, REGISTER_POWER_CONTROL, POWER__NORMAL_MODE, I2C_TIMEOUT));
 
     ge->status = GridEyeStatus_OK;
 
@@ -121,7 +122,7 @@ int gridEye_update(GridEye* ge) {
     //Grab temperatures
     furi_hal_i2c_acquire(I2C_BUS);
     furi_check(furi_hal_i2c_read_mem(
-        I2C_BUS, ge->addr, TEMPERATURE_REGISTER_START, ge->tempData, 128, 100));
+        I2C_BUS, ge->addr, REGISTER_TEMPERATURE_BASE_ADDR, ge->tempData, 128, 100));
     furi_hal_i2c_release(I2C_BUS);
 
     //Update min and max
