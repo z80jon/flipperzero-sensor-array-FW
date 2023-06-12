@@ -49,8 +49,8 @@ static void view_IRCam_draw_callback(Canvas* canvas, void* _model) {
         for(uint8_t x = 0; x < 8; x++) {
             grayscale_render(
                 canvas,
-                64 - x * 8,
-                64 - y * 8,
+                56 - x * 8,
+                56 - y * 8,
                 gridEye_getTemperatureGrayscale(ge, y * 8 + x),
                 IconRotation0);
         }
