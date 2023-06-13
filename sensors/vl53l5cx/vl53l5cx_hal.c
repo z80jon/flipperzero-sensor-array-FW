@@ -11,19 +11,25 @@
   */
 
 #include "vl53l5cx_hal.h"
+#include "../../sensor_app_i.h"
+#include <furi_hal_i2c.h>
+#include <core/kernel.h>
+#include <core/core_defines.h>
 
 uint8_t RdByte(VL53L5CX_Platform* p_platform, uint16_t RegisterAdress, uint8_t* p_value) {
-    uint8_t status = 255;
-
-    /* Need to be implemented by customer. This function returns 0 if OK */
+    furi_hal_i2c_acquire(I2C_BUS);
+    uint8_t status = !furi_hal_i2c_read_reg_8(
+        I2C_BUS, p_platform->address, RegisterAdress, p_value, I2C_TIMEOUT);
+    furi_hal_i2c_release(I2C_BUS);
 
     return status;
 }
 
 uint8_t WrByte(VL53L5CX_Platform* p_platform, uint16_t RegisterAdress, uint8_t value) {
-    uint8_t status = 255;
-
-    /* Need to be implemented by customer. This function returns 0 if OK */
+    furi_hal_i2c_acquire(I2C_BUS);
+    uint8_t status = !furi_hal_i2c_write_reg_8(
+        I2C_BUS, p_platform->address, RegisterAdress, value, I2C_TIMEOUT);
+    furi_hal_i2c_release(I2C_BUS);
 
     return status;
 }
@@ -33,9 +39,10 @@ uint8_t WrMulti(
     uint16_t RegisterAdress,
     uint8_t* p_values,
     uint32_t size) {
-    uint8_t status = 255;
-
-    /* Need to be implemented by customer. This function returns 0 if OK */
+    furi_hal_i2c_acquire(I2C_BUS);
+    uint8_t status = !furi_hal_i2c_write_mem(
+        I2C_BUS, p_platform->address, RegisterAdress, p_values, size, I2C_TIMEOUT_LONG);
+    furi_hal_i2c_release(I2C_BUS);
 
     return status;
 }
@@ -45,9 +52,10 @@ uint8_t RdMulti(
     uint16_t RegisterAdress,
     uint8_t* p_values,
     uint32_t size) {
-    uint8_t status = 255;
-
-    /* Need to be implemented by customer. This function returns 0 if OK */
+    furi_hal_i2c_acquire(I2C_BUS);
+    uint8_t status = !furi_hal_i2c_read_mem(
+        I2C_BUS, p_platform->address, RegisterAdress, p_values, size, I2C_TIMEOUT_LONG);
+    furi_hal_i2c_release(I2C_BUS);
 
     return status;
 }
@@ -82,9 +90,7 @@ void SwapBuffer(uint8_t* buffer, uint16_t size) {
 }
 
 uint8_t WaitMs(VL53L5CX_Platform* p_platform, uint32_t TimeMs) {
-    uint8_t status = 255;
-
-    /* Need to be implemented by customer. This function returns 0 if OK */
-
-    return status;
+    UNUSED(p_platform);
+    furi_delay_ms(TimeMs);
+    return 0;
 }

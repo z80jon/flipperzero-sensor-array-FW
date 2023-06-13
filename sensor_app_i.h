@@ -16,6 +16,7 @@
 
 //I2C bus settings
 #define I2C_TIMEOUT 10
+#define I2C_TIMEOUT_LONG 100
 #define I2C_BUS &furi_hal_i2c_handle_external
 
 typedef struct {
