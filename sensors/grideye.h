@@ -8,7 +8,7 @@
 #include <furi.h>
 #include <furi_hal.h>
 
-#define GRIDEYE_DEFAULT_ADDRESS 0x69 << 1
+#define I2C_ADDR_AMG8833 0x69 << 1
 
 typedef enum {
     GridEyeStatus_OK, //< GridEye is operating normally
@@ -42,15 +42,6 @@ typedef struct {
  *                 when gridEye_update is called next.
  */
 GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate);
-
-/**
- * @brief Checks if the specified GridEye is present on the bus
- * 
- * @param addr the GridEye address
- * @return true the device is ready
- * @return false the device is not present on the bus
- */
-bool gridEye_isReady(uint8_t addr);
 
 /**
  * @brief Updates and returns the status of the current gridEye object

@@ -14,7 +14,7 @@ void sensor_scene_IRCam_ok_callback(InputType type, void* context) {
 void sensor_scene_IRCam_on_enter(void* context) {
     furi_assert(context);
     SensorApp* app = context;
-    app->SensorIRCam->ge = gridEye_init(GRIDEYE_DEFAULT_ADDRESS, GridEyeFrameRate_10FPS);
+    app->SensorIRCam->ge = gridEye_init(I2C_ADDR_AMG8833, GridEyeFrameRate_10FPS);
     //view_IRCam_set_ok_callback(app->SensorIRCam, sensor_scene_IRCam_ok_callback, app);
     //TODO investigate
     view_dispatcher_switch_to_view(app->view_dispatcher, SensorAppViewIRCam);

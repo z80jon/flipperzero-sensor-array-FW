@@ -1,5 +1,6 @@
 #include "grideye.h"
 #include "../sensor_app_i.h"
+#include "../utils.h"
 #include <furi_hal_i2c.h>
 #include <furi_hal_i2c_config.h>
 #include <unistd.h>
@@ -25,7 +26,7 @@
 
 GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     //Make sure the module is there before we do anything
-    furi_check(gridEye_isReady(addr));
+    furi_check(utils_isI2CDeviceReady(addr));
 
     //Struct setup
     GridEye* ge = (GridEye*)malloc(sizeof(GridEye));
@@ -42,20 +43,11 @@ GridEye* gridEye_init(uint8_t addr, eGridEyeFramerate frameRate) {
     return ge;
 }
 
-bool gridEye_isReady(uint8_t addr) {
-    furi_hal_i2c_acquire(I2C_BUS);
-    bool isReady = false;
-    if(furi_hal_i2c_is_device_ready(I2C_BUS, addr, I2C_TIMEOUT)) isReady = true;
-    furi_hal_i2c_release(I2C_BUS);
-    return isReady;
-}
-
 eGridEyeStatus gridEye_getStatus(GridEye* ge) {
     furi_hal_i2c_acquire(I2C_BUS);
-    furi_check(furi_hal_i2c_is_device_ready(I2C_BUS, ge->addr, I2C_TIMEOUT));
-
     uint8_t status =
         furi_hal_i2c_read_reg_8(I2C_BUS, ge->addr, REGISTER_POWER_CONTROL, &status, I2C_TIMEOUT);
+    furi_hal_i2c_release(I2C_BUS);
 
     switch(status) {
     case POWER__NORMAL_MODE:
@@ -69,8 +61,6 @@ eGridEyeStatus gridEye_getStatus(GridEye* ge) {
     default:
         ge->status = GridEyeStatus_Error;
     }
-
-    furi_hal_i2c_release(I2C_BUS);
 
     return GridEyeStatus_OK;
 }

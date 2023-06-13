@@ -2,6 +2,7 @@
 #include <furi_hal_power.h>
 #include <furi_hal_usb.h>
 #include <dolphin/dolphin.h>
+#include "../utils.h"
 
 enum MenuItem { MenuItemIRCam, MenuItemSettings };
 
@@ -26,6 +27,11 @@ static void sensor_scene_menu_var_list_enter_callback(void* context, uint32_t in
 //     UNUSED(app);
 // }
 
+#define I2C_ADDR_BME688 0x76 << 1
+#define I2C_ADDR_VL53L5CX 0x52 << 1
+#define I2C_ADDR_ICM_20948 0x68 << 1
+#define I2C_ADDR_AS7343 0x39 << 1
+
 void sensor_scene_menu_on_enter(void* context) {
     SensorApp* app = context;
     VariableItemList* var_item_list = app->var_item_list;
@@ -33,10 +39,34 @@ void sensor_scene_menu_on_enter(void* context) {
     variable_item_list_set_enter_callback(
         var_item_list, sensor_scene_menu_var_list_enter_callback, app);
 
-    if(gridEye_isReady(GRIDEYE_DEFAULT_ADDRESS)) {
-        variable_item_list_add(var_item_list, "IR Imager", 0, NULL, NULL);
+    if(utils_isI2CDeviceReady(I2C_ADDR_AMG8833)) {
+        variable_item_list_add(var_item_list, "8x8 Thermal Imager", 0, NULL, NULL);
     } else {
-        variable_item_list_add(var_item_list, "IR Imager (unavailable)", 0, NULL, NULL);
+        variable_item_list_add(var_item_list, "(unavailable)8x8 Thermal Imager", 0, NULL, NULL);
+    }
+
+    if(utils_isI2CDeviceReady(I2C_ADDR_BME688)) {
+        variable_item_list_add(var_item_list, "Weather/Gas Sensors", 0, NULL, NULL);
+    } else {
+        variable_item_list_add(var_item_list, "(unavailable)Weather/Gas Sensors", 0, NULL, NULL);
+    }
+
+    if(utils_isI2CDeviceReady(I2C_ADDR_VL53L5CX)) {
+        variable_item_list_add(var_item_list, "8x8 Distance Imager", 0, NULL, NULL);
+    } else {
+        variable_item_list_add(var_item_list, "(unavailable)8x8 Distance Imager", 0, NULL, NULL);
+    }
+
+    if(utils_isI2CDeviceReady(I2C_ADDR_ICM_20948)) {
+        variable_item_list_add(var_item_list, "9-Axis IMU", 0, NULL, NULL);
+    } else {
+        variable_item_list_add(var_item_list, "(unavailable)9-Axis IMU", 0, NULL, NULL);
+    }
+
+    if(utils_isI2CDeviceReady(I2C_ADDR_AS7343)) {
+        variable_item_list_add(var_item_list, "Light Spectrometer", 0, NULL, NULL);
+    } else {
+        variable_item_list_add(var_item_list, "(unavailable)Light Spectrometer", 0, NULL, NULL);
     }
 
     variable_item_list_add(var_item_list, "Settings", 0, NULL, NULL);
@@ -67,7 +97,7 @@ bool sensor_scene_menu_on_event(void* context, SceneManagerEvent event) {
         //     } else {
         //         scene_manager_next_scene(app->scene_manager, GpioSceneUsbUartCloseRpc);
         //     }
-        if(event.event == SensorItemEventStartIRCam && gridEye_isReady(GRIDEYE_DEFAULT_ADDRESS)) {
+        if(event.event == SensorItemEventStartIRCam && utils_isI2CDeviceReady(I2C_ADDR_AMG8833)) {
             scene_manager_set_scene_state(app->scene_manager, SensorSceneMenu, MenuItemIRCam);
             scene_manager_next_scene(app->scene_manager, SensorSceneIRCam);
         }

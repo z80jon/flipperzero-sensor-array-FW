@@ -5,5 +5,6 @@ typedef enum {
     SensorItemEventStartWeatherSensor,
     SensorItemEventStartDepthSensor,
     SensorItemEventStartIMU,
+    SensorItemEventStartSpectrometer,
     SensorItemEventStartSettings
 } SensorCustomEvent;
