@@ -116,6 +116,10 @@ bool sensor_scene_menu_on_event(void* context, SceneManagerEvent event) {
         //     } else {
         //         scene_manager_next_scene(app->scene_manager, GpioSceneUsbUartCloseRpc);
         //     }
+        if(event.event == SensorItemEventStartDepthSensor) {
+            scene_manager_set_scene_state(app->scene_manager, SensorSceneMenu, MenuItemTOFDepth);
+            scene_manager_next_scene(app->scene_manager, SensorSceneTOFDepth);
+        }
         if(event.event == SensorItemEventStartIRCam && utils_isI2CDeviceReady(I2C_ADDR_AMG8833)) {
             scene_manager_set_scene_state(app->scene_manager, SensorSceneMenu, MenuItemIRCam);
             scene_manager_next_scene(app->scene_manager, SensorSceneIRCam);

@@ -4,6 +4,7 @@
 #include "scenes/scenes.h"
 #include "sensor_custom_event.h"
 #include "sensors/grideye.h"
+#include "sensors/vl53l5cx/vl53l5cx_api.h"
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
@@ -25,6 +26,13 @@ typedef struct {
     GridEye* ge;
 } SensorIRCam;
 
+typedef struct {
+    View* view;
+    void* context;
+    VL53L5CX_Configuration* TOFConfiguration;
+    VL53L5CX_ResultsData* TOFResultsData;
+} SensorTOFDepth;
+
 struct SensorApp {
     Gui* gui;
     NotificationApp* notifications;
@@ -36,6 +44,7 @@ struct SensorApp {
 
     //Sensor-specific params
     SensorIRCam* SensorIRCam;
+    SensorTOFDepth* SensorTOFDepth;
 };
 
 typedef enum {
