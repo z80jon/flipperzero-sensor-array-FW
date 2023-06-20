@@ -37,4 +37,12 @@ struct SensorApp {
     SensorIRCam* SensorIRCam;
 };
 
-typedef enum { SensorAppViewMenu, SensorAppViewIRCam, SensorAppViewSettings } SensorAppView;
+typedef enum {
+    SensorAppViewMenu, //< Default view when app is launched. Shows selection of which sensor to display data from
+    SensorAppViewIRCam, //< IR Camera (8x8 pixel) AMG8833 viewer. Grayscale, basic readouts as well.
+    SensorAppViewTOFDepth,
+    SensorAppViewSpectrometer,
+    SensorAppViewIMU,
+    SensorAppViewWeatherSensor,
+    SensorAppViewSettings //< NYI settings
+} SensorAppView;
