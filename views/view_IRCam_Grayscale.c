@@ -18,20 +18,23 @@ static void grayscale_render(
     uint8_t x,
     uint8_t y,
     uint8_t grayscale_value,
-    IconRotation rotation);
+    IconRotation rotation,
+    bool invert);
 
 typedef struct {
     SensorIRCam* IRCam;
+    bool invert;
     //TODO add graphics modes, etc
-} IRCamModel;
+} IRCam_grayscale_model;
 
 static void view_IRCam_grayscale_draw_callback(Canvas* canvas, void* _model) {
-    IRCamModel* model = _model;
+    IRCam_grayscale_model* model = _model;
     furi_check(model->IRCam->ge != NULL);
     GridEye* ge = model->IRCam->ge;
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 75, 8, "AMG8833");
-    canvas_draw_str(canvas, 14, 33, "Working...");
+    canvas_draw_str_aligned(canvas, 96, 1, AlignCenter, AlignTop, "AMG8833");
+    canvas_draw_line(canvas, 65, 0, 65, 63);
+    canvas_draw_line(canvas, 65, 10, 127, 10);
 
     FuriString* buff = furi_string_alloc();
 
@@ -50,9 +53,23 @@ static void view_IRCam_grayscale_draw_callback(Canvas* canvas, void* _model) {
                 56 - x * 8,
                 56 - y * 8,
                 gridEye_getTemperatureGrayscale(ge, y * 8 + x),
-                IconRotation0);
+                IconRotation0,
+                model->invert);
         }
     }
+
+    //Grayscale inversion status
+    if(model->invert) {
+        canvas_draw_str_aligned(canvas, 96, 40, AlignCenter, AlignTop, "White Hot");
+    } else {
+        canvas_draw_str_aligned(canvas, 96, 40, AlignCenter, AlignTop, "Black Hot");
+    }
+
+    // Button
+    canvas_draw_rbox(canvas, 73, 50, 46, 13, 3);
+    canvas_set_color(canvas, ColorWhite);
+    canvas_draw_icon(canvas, 78, 52, &I_button_ok_9x9);
+    canvas_draw_str_aligned(canvas, 90, 53, AlignLeft, AlignTop, "Invert");
 }
 
 static bool view_IRCam_grayscale_input_callback(InputEvent* event, void* context) {
@@ -66,7 +83,7 @@ static bool view_IRCam_grayscale_input_callback(InputEvent* event, void* context
         } else if(event->key == InputKeyLeft) {
             consumed = view_IRCam_grayscale_process_left(view_IRCam);
         }
-    } else if(event->key == InputKeyOk) {
+    } else if(event->key == InputKeyOk && event->type == InputTypePress) {
         consumed = view_IRCam_grayscale_process_ok(view_IRCam, event);
     }
 
@@ -75,19 +92,19 @@ static bool view_IRCam_grayscale_input_callback(InputEvent* event, void* context
 
 static bool view_IRCam_grayscale_process_left(SensorIRCam* view_IRCam) {
     with_view_model(
-        view_IRCam->view, IRCamModel * model, { UNUSED(model); }, true);
+        view_IRCam->view, IRCam_grayscale_model * model, { UNUSED(model); }, true);
     return true;
 }
 
 static bool view_IRCam_grayscale_process_right(SensorIRCam* view_IRCam) {
     with_view_model(
-        view_IRCam->view, IRCamModel * model, { UNUSED(model); }, true);
+        view_IRCam->view, IRCam_grayscale_model * model, { UNUSED(model); }, true);
     return true;
 }
 
 static bool view_IRCam_grayscale_process_ok(SensorIRCam* view_IRCam, InputEvent* event) {
     with_view_model(
-        view_IRCam->view, IRCamModel * model, { UNUSED(model); }, true);
+        view_IRCam->view, IRCam_grayscale_model * model, { model->invert = !model->invert; }, true);
     bool consumed = true;
     UNUSED(event);
     return consumed;
@@ -98,11 +115,17 @@ SensorIRCam* view_IRCam_grayscale_alloc(SensorApp* app) {
 
     UNUSED(app);
     view_IRCam->view = view_alloc();
-    view_allocate_model(view_IRCam->view, ViewModelTypeLocking, sizeof(IRCamModel));
+    view_allocate_model(view_IRCam->view, ViewModelTypeLocking, sizeof(IRCam_grayscale_model));
     view_IRCam->ge = NULL;
 
     with_view_model(
-        view_IRCam->view, IRCamModel * model, { model->IRCam = view_IRCam; }, false);
+        view_IRCam->view,
+        IRCam_grayscale_model * model,
+        {
+            model->IRCam = view_IRCam;
+            model->invert = false;
+        },
+        false);
 
     view_set_context(view_IRCam->view, view_IRCam);
     view_set_draw_callback(view_IRCam->view, view_IRCam_grayscale_draw_callback);
@@ -131,7 +154,7 @@ void view_IRCam_grayscale_set_ok_callback(
     furi_assert(callback);
     with_view_model(
         view_IRCam->view,
-        IRCamModel * model,
+        IRCam_grayscale_model * model,
         {
             UNUSED(model);
             //view_IRCam->callback = callback;
@@ -146,11 +169,20 @@ static void grayscale_render(
     uint8_t x,
     uint8_t y,
     uint8_t grayscale_value,
-    IconRotation rotation) {
+    IconRotation rotation,
+    bool invert) {
     //TODO change to pound define, unify with grideye.c binning algorithm pound define
     furi_assert(grayscale_value < 9);
+
+    if(invert) {
+        grayscale_value = 8 - grayscale_value;
+    }
+
     switch(grayscale_value) {
     case 0:
+        canvas_set_color(canvas, ColorWhite);
+        canvas_draw_box(canvas, x, y, 8, 8);
+        canvas_set_color(canvas, ColorBlack);
         canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_0, rotation);
         break;
     case 1:
@@ -178,7 +210,8 @@ static void grayscale_render(
         canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_8, rotation);
         break;
     default:
-        canvas_draw_icon_ex(canvas, x, y, &I_grayscale_8x8_8, rotation);
+        //Error
+        furi_check(false);
         break;
     }
 }
