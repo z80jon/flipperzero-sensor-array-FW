@@ -32,16 +32,23 @@ static void view_IRCam_grayscale_draw_callback(Canvas* canvas, void* _model) {
     furi_check(model->IRCam->ge != NULL);
     GridEye* ge = model->IRCam->ge;
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str_aligned(canvas, 96, 1, AlignCenter, AlignTop, "AMG8833");
+    canvas_draw_str_aligned(canvas, 96, 1, AlignCenter, AlignTop, "Thermal Cam");
     canvas_draw_line(canvas, 65, 0, 65, 63);
     canvas_draw_line(canvas, 65, 10, 127, 10);
 
     FuriString* buff = furi_string_alloc();
 
-    furi_string_printf(buff, "Max: %.1FC", (double)ge->max);
-    canvas_draw_str(canvas, 75, 36, furi_string_get_cstr(buff));
     furi_string_printf(buff, "Min: %.1FC", (double)ge->min);
-    canvas_draw_str(canvas, 75, 26, furi_string_get_cstr(buff));
+    canvas_draw_str(canvas, 75, 19, furi_string_get_cstr(buff));
+    furi_string_printf(buff, "Max: %.1FC", (double)ge->max);
+    canvas_draw_str(canvas, 75, 28, furi_string_get_cstr(buff));
+
+    //Grab the center 4 pixels
+    float center_avg = (gridEye_getTemperature(ge, 37) + gridEye_getTemperature(ge, 36) +
+                        gridEye_getTemperature(ge, 29) + gridEye_getTemperature(ge, 28)) /
+                       4;
+    furi_string_printf(buff, "Cntr: %.1FC", (double)center_avg);
+    canvas_draw_str(canvas, 75, 37, furi_string_get_cstr(buff));
 
     furi_string_free(buff);
 
