@@ -133,8 +133,12 @@ int gridEye_update(GridEye* ge) {
     //Sort each of the 64 pixels into its respective bin
     for(uint8_t i = 0; i < 64; i++) {
         float temp = gridEye_getTemperature(ge, i);
-        for(uint8_t b = 0; b < NUM_TEMPERATURE_BINS && temp > binSeparators[b]; b++)
-            ge->tempDataBins[i] = b;
+        ge->tempDataBins[i] = 0;
+        for(uint8_t bin = 1; bin < NUM_TEMPERATURE_BINS; bin++) {
+            if(temp > binSeparators[bin - 1]) {
+                ge->tempDataBins[i] = bin;
+            }
+        }
     }
 
     return 0;

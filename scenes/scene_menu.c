@@ -4,7 +4,14 @@
 #include <dolphin/dolphin.h>
 #include "../utils.h"
 
-enum MenuItem { MenuItemIRCam, MenuItemSettings };
+enum MenuItem {
+    MenuItemIRCam,
+    MenuItemWeatherGasSensor,
+    MenuItemTOFDepth,
+    MenuItemIMU,
+    MenuItemSpectrometer,
+    MenuItemSettings
+};
 
 static void sensor_scene_menu_var_list_enter_callback(void* context, uint32_t index) {
     furi_assert(context);
@@ -13,8 +20,20 @@ static void sensor_scene_menu_var_list_enter_callback(void* context, uint32_t in
     case MenuItemIRCam:
         view_dispatcher_send_custom_event(app->view_dispatcher, SensorItemEventStartIRCam);
         break;
+    case MenuItemWeatherGasSensor:
+        view_dispatcher_send_custom_event(app->view_dispatcher, SensorItemEventStartWeatherSensor);
+        break;
+    case MenuItemTOFDepth:
+        view_dispatcher_send_custom_event(app->view_dispatcher, SensorItemEventStartDepthSensor);
+        break;
+    case MenuItemIMU:
+        view_dispatcher_send_custom_event(app->view_dispatcher, SensorItemEventStartIMU);
+        break;
+    case MenuItemSpectrometer:
+        view_dispatcher_send_custom_event(app->view_dispatcher, SensorItemEventStartSpectrometer);
+        break;
     case MenuItemSettings:
-        //view_dispatcher_send_custom_event(app->view_dispatcher, SensorItemEventStartIRCam);
+        //NYI view_dispatcher_send_custom_event(app->view_dispatcher, SensorItemEventStartIRCam);
         //TODO implement
         break;
     }
