@@ -318,16 +318,17 @@ uint8_t vl53l5cx_init(
 	status |= WrByte(&(p_dev->platform), 0x20, 0x06);
 
 	/* Download FW into VL53L5 */
-	status |= WrByte(&(p_dev->platform), 0x7fff, 0x09);
-	status |= WrMulti(&(p_dev->platform),0,
-		(uint8_t*)&VL53L5CX_FIRMWARE[0],0x8000);
-	status |= WrByte(&(p_dev->platform), 0x7fff, 0x0a);
-	status |= WrMulti(&(p_dev->platform),0,
-		(uint8_t*)&VL53L5CX_FIRMWARE[0x8000],0x8000);
-	status |= WrByte(&(p_dev->platform), 0x7fff, 0x0b);
-	status |= WrMulti(&(p_dev->platform),0,
-		(uint8_t*)&VL53L5CX_FIRMWARE[0x10000],0x5000);
-	status |= WrByte(&(p_dev->platform), 0x7fff, 0x01);
+	//TODO fix me
+	// status |= WrByte(&(p_dev->platform), 0x7fff, 0x09);
+	// status |= WrMulti(&(p_dev->platform),0,
+	// 	(uint8_t*)&VL53L5CX_FIRMWARE[0],0x8000);
+	// status |= WrByte(&(p_dev->platform), 0x7fff, 0x0a);
+	// status |= WrMulti(&(p_dev->platform),0,
+	// 	(uint8_t*)&VL53L5CX_FIRMWARE[0x8000],0x8000);
+	// status |= WrByte(&(p_dev->platform), 0x7fff, 0x0b);
+	// status |= WrMulti(&(p_dev->platform),0,
+	// 	(uint8_t*)&VL53L5CX_FIRMWARE[0x10000],0x5000);
+	// status |= WrByte(&(p_dev->platform), 0x7fff, 0x01);
 
 	/* Check if FW correctly downloaded */
 	status |= WrByte(&(p_dev->platform), 0x7fff, 0x02);

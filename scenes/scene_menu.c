@@ -46,11 +46,6 @@ static void sensor_scene_menu_var_list_enter_callback(void* context, uint32_t in
 //     UNUSED(app);
 // }
 
-#define I2C_ADDR_BME688 0x76 << 1
-#define I2C_ADDR_VL53L5CX 0x52 << 1
-#define I2C_ADDR_ICM_20948 0x68 << 1
-#define I2C_ADDR_AS7343 0x39 << 1
-
 void sensor_scene_menu_on_enter(void* context) {
     SensorApp* app = context;
     VariableItemList* var_item_list = app->var_item_list;

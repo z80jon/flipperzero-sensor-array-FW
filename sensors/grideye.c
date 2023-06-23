@@ -10,9 +10,6 @@
 #include <furi_hal.h>
 #include <math.h>
 
-//Number of temperature 'bins' (for grayscale data generation)
-#define NUM_TEMPERATURE_BINS 9
-
 //Registers
 #define REGISTER_POWER_CONTROL 0x00 //< Register to set the amg8833 to wake/sleep
 #define REGISTER_FRAMERATE 0x02 //< Register to set framerate to 1 vs 10fps

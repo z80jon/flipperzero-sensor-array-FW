@@ -15,10 +15,18 @@
 #include <gui/modules/widget.h>
 #include <assets_icons.h>
 
+//Number of temperature 'bins' (for grayscale data generation)
+#define NUM_TEMPERATURE_BINS 9
+
 //I2C bus settings
 #define I2C_TIMEOUT 10
 #define I2C_TIMEOUT_LONG 100
 #define I2C_BUS &furi_hal_i2c_handle_external
+
+#define I2C_ADDR_VL53L5CX 0x52 << 1
+#define I2C_ADDR_BME688 0x76 << 1
+#define I2C_ADDR_ICM_20948 0x68 << 1
+#define I2C_ADDR_AS7343 0x39 << 1
 
 typedef struct {
     View* view;
@@ -27,10 +35,17 @@ typedef struct {
 } SensorIRCam;
 
 typedef struct {
-    View* view;
-    void* context;
     VL53L5CX_Configuration* TOFConfiguration;
     VL53L5CX_ResultsData* TOFResultsData;
+    int16_t min;
+    int16_t max;
+    uint8_t grayscale[64];
+} TOFSensor;
+
+typedef struct {
+    View* view;
+    void* context;
+    TOFSensor* tof;
 } SensorTOFDepth;
 
 struct SensorApp {

@@ -1,4 +1,5 @@
 #include "view_TOFDepth_grayscale.h"
+#include "../sensors/vl53l5cx/vl53l5cx_api.h"
 //#include "sensor_array_images.h" //Auto-generated file from images folder
 
 #include <gui/elements.h>
@@ -29,41 +30,43 @@ typedef struct {
 
 static void view_TOFDepth_grayscale_draw_callback(Canvas* canvas, void* _model) {
     TOFDepth_grayscale_model* model = _model;
-    //furi_check(model->TOFDepth->ge != NULL);
-    //GridEye* ge = model->TOFDepth->ge;
+    furi_check(model->TOFDepth != NULL);
+    TOFSensor* tof = model->TOFDepth->tof;
     canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str_aligned(canvas, 96, 1, AlignCenter, AlignTop, "Thermal Cam");
+    canvas_draw_str_aligned(canvas, 96, 1, AlignCenter, AlignTop, "TOF Sensor");
     canvas_draw_line(canvas, 65, 0, 65, 63);
     canvas_draw_line(canvas, 65, 10, 127, 10);
 
-    //FuriString* buff = furi_string_alloc();
+    FuriString* buff = furi_string_alloc();
 
-    //furi_string_printf(buff, "Min: %.1FC", (double)ge->min);
-    //canvas_draw_str(canvas, 75, 19, furi_string_get_cstr(buff));
-    //furi_string_printf(buff, "Max: %.1FC", (double)ge->max);
-    //canvas_draw_str(canvas, 75, 28, furi_string_get_cstr(buff));
+    furi_string_printf(buff, "Min: %dcm", tof->min / 10);
+    canvas_draw_str(canvas, 75, 19, furi_string_get_cstr(buff));
+    furi_string_printf(buff, "Max: %dcm", tof->max / 10);
+    canvas_draw_str(canvas, 75, 28, furi_string_get_cstr(buff));
 
     //Grab the center 4 pixels
-    //float center_avg = (gridEye_getTemperature(ge, 37) + gridEye_getTemperature(ge, 36) +
-    //                    gridEye_getTemperature(ge, 29) + gridEye_getTemperature(ge, 28)) /
-    //                    4;
-    // furi_string_printf(buff, "Cntr: %.1FC", (double)center_avg);
-    // canvas_draw_str(canvas, 75, 37, furi_string_get_cstr(buff));
+    float center_avg =
+        (tof->TOFResultsData->distance_mm[37] + tof->TOFResultsData->distance_mm[36] +
+         tof->TOFResultsData->distance_mm[29] + tof->TOFResultsData->distance_mm[28]) /
+        4 / 10;
+    furi_string_printf(buff, "Cntr: %.1fcm", (double)center_avg);
+    canvas_draw_str(canvas, 75, 37, furi_string_get_cstr(buff));
 
     //furi_string_free(buff);
 
     //Draw the 8x8 grid of pixels
     for(uint8_t y = 0; y < 8; y++) {
         for(uint8_t x = 0; x < 8; x++) {
-            grayscale_render(canvas, 56 - x * 8, 56 - y * 8, 4, IconRotation0, model->invert);
+            grayscale_render(
+                canvas, x * 8, y * 8, tof->grayscale[y * 8 + x], IconRotation0, model->invert);
         }
     }
 
     //Grayscale inversion status
     if(model->invert) {
-        canvas_draw_str_aligned(canvas, 96, 40, AlignCenter, AlignTop, "White Hot");
+        canvas_draw_str_aligned(canvas, 96, 40, AlignCenter, AlignTop, "White Far");
     } else {
-        canvas_draw_str_aligned(canvas, 96, 40, AlignCenter, AlignTop, "Black Hot");
+        canvas_draw_str_aligned(canvas, 96, 40, AlignCenter, AlignTop, "Black Far");
     }
 
     // Button
@@ -115,9 +118,17 @@ static bool view_TOFDepth_grayscale_process_ok(SensorTOFDepth* view_TOFDepth, In
 }
 
 SensorTOFDepth* view_TOFDepth_grayscale_alloc(SensorApp* app) {
-    SensorTOFDepth* view_TOFDepth = malloc(sizeof(SensorTOFDepth));
+    SensorTOFDepth* view_TOFDepth = (SensorTOFDepth*)malloc(sizeof(SensorTOFDepth));
+    view_TOFDepth->tof = (TOFSensor*)malloc(sizeof(TOFSensor));
+
+    view_TOFDepth->tof->TOFConfiguration =
+        (VL53L5CX_Configuration*)malloc(sizeof(VL53L5CX_Configuration));
+    view_TOFDepth->tof->TOFResultsData =
+        (VL53L5CX_ResultsData*)malloc(sizeof(VL53L5CX_ResultsData));
+    view_TOFDepth->tof->TOFConfiguration->platform.address = I2C_ADDR_VL53L5CX;
 
     UNUSED(app);
+
     view_TOFDepth->view = view_alloc();
     view_allocate_model(
         view_TOFDepth->view, ViewModelTypeLocking, sizeof(TOFDepth_grayscale_model));
@@ -142,6 +153,9 @@ void view_TOFDepth_grayscale_free(SensorTOFDepth* view_TOFDepth) {
     furi_assert(view_TOFDepth);
     view_free(view_TOFDepth->view);
     //if(view_TOFDepth->ge != NULL) gridEye_free(view_TOFDepth->ge);
+    free(view_TOFDepth->tof->TOFConfiguration);
+    free(view_TOFDepth->tof->TOFResultsData);
+    free(view_TOFDepth->tof);
     free(view_TOFDepth);
 }
 
