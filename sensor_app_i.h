@@ -23,7 +23,7 @@
 #define I2C_TIMEOUT_LONG 100
 #define I2C_BUS &furi_hal_i2c_handle_external
 
-#define I2C_ADDR_VL53L5CX 0x52 << 1
+#define I2C_ADDR_VL53L5CX 0x52
 #define I2C_ADDR_BME688 0x76 << 1
 #define I2C_ADDR_ICM_20948 0x68 << 1
 #define I2C_ADDR_AS7343 0x39 << 1
