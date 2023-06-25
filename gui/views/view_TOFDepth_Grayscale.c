@@ -1,5 +1,5 @@
 #include "view_TOFDepth_grayscale.h"
-#include "../sensors/vl53l5cx/vl53l5cx_api.h"
+#include "../../lib/vl53l5cx/vl53l5cx_api.h"
 //#include "sensor_array_images.h" //Auto-generated file from images folder
 
 #include <gui/elements.h>
@@ -11,9 +11,9 @@
 
 #include "sensor_array_icons.h"
 
-static bool view_TOFDepth_grayscale_process_left(SensorTOFDepth* view_TOFDepth);
-static bool view_TOFDepth_grayscale_process_right(SensorTOFDepth* view_TOFDepth);
-static bool view_TOFDepth_grayscale_process_ok(SensorTOFDepth* view_TOFDepth, InputEvent* event);
+static bool view_TOFDepth_grayscale_process_left(Sensor_TOFDepth* view_TOFDepth);
+static bool view_TOFDepth_grayscale_process_right(Sensor_TOFDepth* view_TOFDepth);
+static bool view_TOFDepth_grayscale_process_ok(Sensor_TOFDepth* view_TOFDepth, InputEvent* event);
 static void grayscale_render(
     Canvas* canvas,
     uint8_t x,
@@ -23,7 +23,7 @@ static void grayscale_render(
     bool invert);
 
 typedef struct {
-    SensorTOFDepth* TOFDepth;
+    Sensor_TOFDepth* TOFDepth;
     bool invert;
     //TODO add graphics modes, etc
 } TOFDepth_grayscale_model;
@@ -78,7 +78,7 @@ static void view_TOFDepth_grayscale_draw_callback(Canvas* canvas, void* _model) 
 
 static bool view_TOFDepth_grayscale_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
-    SensorTOFDepth* view_TOFDepth = (SensorTOFDepth*)context;
+    Sensor_TOFDepth* view_TOFDepth = (Sensor_TOFDepth*)context;
     bool consumed = false;
 
     if(event->type == InputTypeShort) {
@@ -94,19 +94,19 @@ static bool view_TOFDepth_grayscale_input_callback(InputEvent* event, void* cont
     return consumed;
 }
 
-static bool view_TOFDepth_grayscale_process_left(SensorTOFDepth* view_TOFDepth) {
+static bool view_TOFDepth_grayscale_process_left(Sensor_TOFDepth* view_TOFDepth) {
     with_view_model(
         view_TOFDepth->view, TOFDepth_grayscale_model * model, { UNUSED(model); }, true);
     return true;
 }
 
-static bool view_TOFDepth_grayscale_process_right(SensorTOFDepth* view_TOFDepth) {
+static bool view_TOFDepth_grayscale_process_right(Sensor_TOFDepth* view_TOFDepth) {
     with_view_model(
         view_TOFDepth->view, TOFDepth_grayscale_model * model, { UNUSED(model); }, true);
     return true;
 }
 
-static bool view_TOFDepth_grayscale_process_ok(SensorTOFDepth* view_TOFDepth, InputEvent* event) {
+static bool view_TOFDepth_grayscale_process_ok(Sensor_TOFDepth* view_TOFDepth, InputEvent* event) {
     with_view_model(
         view_TOFDepth->view,
         TOFDepth_grayscale_model * model,
@@ -117,8 +117,8 @@ static bool view_TOFDepth_grayscale_process_ok(SensorTOFDepth* view_TOFDepth, In
     return consumed;
 }
 
-SensorTOFDepth* view_TOFDepth_grayscale_alloc(SensorApp* app) {
-    SensorTOFDepth* view_TOFDepth = (SensorTOFDepth*)malloc(sizeof(SensorTOFDepth));
+Sensor_TOFDepth* view_TOFDepth_grayscale_alloc(SensorApp* app) {
+    Sensor_TOFDepth* view_TOFDepth = (Sensor_TOFDepth*)malloc(sizeof(Sensor_TOFDepth));
     view_TOFDepth->tof = (TOFSensor*)malloc(sizeof(TOFSensor));
 
     view_TOFDepth->tof->TOFConfiguration =
@@ -149,7 +149,7 @@ SensorTOFDepth* view_TOFDepth_grayscale_alloc(SensorApp* app) {
     return view_TOFDepth;
 }
 
-void view_TOFDepth_grayscale_free(SensorTOFDepth* view_TOFDepth) {
+void view_TOFDepth_grayscale_free(Sensor_TOFDepth* view_TOFDepth) {
     furi_assert(view_TOFDepth);
     view_free(view_TOFDepth->view);
     //if(view_TOFDepth->ge != NULL) gridEye_free(view_TOFDepth->ge);
@@ -159,13 +159,13 @@ void view_TOFDepth_grayscale_free(SensorTOFDepth* view_TOFDepth) {
     free(view_TOFDepth);
 }
 
-View* view_TOFDepth_grayscale_get_view(SensorTOFDepth* view_TOFDepth) {
+View* view_TOFDepth_grayscale_get_view(Sensor_TOFDepth* view_TOFDepth) {
     furi_assert(view_TOFDepth);
     return view_TOFDepth->view;
 }
 
 void view_TOFDepth_grayscale_set_ok_callback(
-    SensorTOFDepth* view_TOFDepth,
+    Sensor_TOFDepth* view_TOFDepth,
     GpioTestOkCallback callback,
     void* context) {
     furi_assert(view_TOFDepth);
@@ -189,11 +189,10 @@ static void grayscale_render(
     uint8_t grayscale_value,
     IconRotation rotation,
     bool invert) {
-    //TODO change to pound define, unify with grideye.c binning algorithm pound define
-    furi_assert(grayscale_value < 9);
+    furi_assert(grayscale_value < NUM_GRAYSCALE_BINS);
 
     if(invert) {
-        grayscale_value = 8 - grayscale_value;
+        grayscale_value = NUM_GRAYSCALE_BINS - grayscale_value;
     }
 
     switch(grayscale_value) {

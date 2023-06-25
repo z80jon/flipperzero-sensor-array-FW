@@ -1,6 +1,6 @@
 #include "sensor_app_i.h"
-#include "views/view_IRCam_grayscale.h"
-#include "views/view_TOFDepth_Grayscale.h"
+#include "gui/views/view_IRCam_grayscale.h"
+#include "gui/views/view_TOFDepth_Grayscale.h"
 
 #include <furi.h>
 #include <furi_hal.h>
@@ -48,15 +48,17 @@ SensorApp* sensor_app_alloc() {
     view_dispatcher_add_view(
         app->view_dispatcher, SensorAppViewMenu, variable_item_list_get_view(app->var_item_list));
 
-    app->SensorIRCam = view_IRCam_grayscale_alloc(app);
+    app->Sensor_IRCam = view_IRCam_grayscale_alloc(app);
     view_dispatcher_add_view(
-        app->view_dispatcher, SensorAppViewIRCam, view_IRCam_grayscale_get_view(app->SensorIRCam));
+        app->view_dispatcher,
+        SensorAppViewIRCam,
+        view_IRCam_grayscale_get_view(app->Sensor_IRCam));
 
-    app->SensorTOFDepth = view_TOFDepth_grayscale_alloc(app);
+    app->Sensor_TOFDepth = view_TOFDepth_grayscale_alloc(app);
     view_dispatcher_add_view(
         app->view_dispatcher,
         SensorAppViewTOFDepth,
-        view_TOFDepth_grayscale_get_view(app->SensorTOFDepth));
+        view_TOFDepth_grayscale_get_view(app->Sensor_TOFDepth));
 
     app->widget = widget_alloc();
 
@@ -77,8 +79,8 @@ void sensor_app_free(SensorApp* app) {
     widget_free(app->widget);
 
     //Sensor views
-    view_IRCam_grayscale_free(app->SensorIRCam);
-    view_TOFDepth_grayscale_free(app->SensorTOFDepth);
+    view_IRCam_grayscale_free(app->Sensor_IRCam);
+    view_TOFDepth_grayscale_free(app->Sensor_TOFDepth);
 
     // View dispatcher
     view_dispatcher_free(app->view_dispatcher);

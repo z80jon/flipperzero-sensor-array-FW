@@ -1,10 +1,10 @@
 #pragma once
 
 #include "sensor_app.h"
-#include "scenes/scenes.h"
+#include "gui/scenes/scenes.h"
 #include "sensor_custom_event.h"
-#include "sensors/grideye.h"
-#include "sensors/vl53l5cx/vl53l5cx_api.h"
+#include "lib/amg8833/amg8833.h"
+#include "lib/vl53l5cx/vl53l5cx_api.h"
 
 #include <gui/gui.h>
 #include <gui/view_dispatcher.h>
@@ -15,8 +15,9 @@
 #include <gui/modules/widget.h>
 #include <assets_icons.h>
 
-//Number of temperature 'bins' (for grayscale data generation)
-#define NUM_TEMPERATURE_BINS 9
+//Number of 'bins' for grayscale generation--we have 9 possible screen patterns from
+//all pixels off to all pixels on
+#define NUM_GRAYSCALE_BINS 9
 
 //I2C bus settings
 #define I2C_TIMEOUT 10
@@ -31,8 +32,8 @@
 typedef struct {
     View* view;
     void* context;
-    GridEye* ge;
-} SensorIRCam;
+    AMG8833* sensor;
+} Sensor_IRCam;
 
 typedef struct {
     VL53L5CX_Configuration* TOFConfiguration;
@@ -46,7 +47,7 @@ typedef struct {
     View* view;
     void* context;
     TOFSensor* tof;
-} SensorTOFDepth;
+} Sensor_TOFDepth;
 
 struct SensorApp {
     Gui* gui;
@@ -57,9 +58,9 @@ struct SensorApp {
 
     VariableItemList* var_item_list;
 
-    //Sensor-specific params
-    SensorIRCam* SensorIRCam;
-    SensorTOFDepth* SensorTOFDepth;
+    //Sensors
+    Sensor_IRCam* Sensor_IRCam;
+    Sensor_TOFDepth* Sensor_TOFDepth;
 };
 
 typedef enum {

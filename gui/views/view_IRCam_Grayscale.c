@@ -1,5 +1,5 @@
 #include "view_IRCam_grayscale.h"
-//#include "sensor_array_images.h" //Auto-generated file from images folder
+#include "../../lib/amg8833/amg8833.h"
 
 #include <gui/elements.h>
 #include <gui/canvas.h>
@@ -10,9 +10,9 @@
 
 #include "sensor_array_icons.h"
 
-static bool view_IRCam_grayscale_process_left(SensorIRCam* view_IRCam);
-static bool view_IRCam_grayscale_process_right(SensorIRCam* view_IRCam);
-static bool view_IRCam_grayscale_process_ok(SensorIRCam* view_IRCam, InputEvent* event);
+static bool view_IRCam_grayscale_process_left(Sensor_IRCam* view_IRCam);
+static bool view_IRCam_grayscale_process_right(Sensor_IRCam* view_IRCam);
+static bool view_IRCam_grayscale_process_ok(Sensor_IRCam* view_IRCam, InputEvent* event);
 static void grayscale_render(
     Canvas* canvas,
     uint8_t x,
@@ -22,15 +22,15 @@ static void grayscale_render(
     bool invert);
 
 typedef struct {
-    SensorIRCam* IRCam;
+    Sensor_IRCam* IRCam;
     bool invert;
     //TODO add graphics modes, etc
 } IRCam_grayscale_model;
 
 static void view_IRCam_grayscale_draw_callback(Canvas* canvas, void* _model) {
     IRCam_grayscale_model* model = _model;
-    furi_check(model->IRCam->ge != NULL);
-    GridEye* ge = model->IRCam->ge;
+    furi_check(model->IRCam->sensor != NULL);
+    AMG8833* sensor = model->IRCam->sensor;
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str_aligned(canvas, 96, 1, AlignCenter, AlignTop, "Thermal Cam");
     canvas_draw_line(canvas, 65, 0, 65, 63);
@@ -38,14 +38,14 @@ static void view_IRCam_grayscale_draw_callback(Canvas* canvas, void* _model) {
 
     FuriString* buff = furi_string_alloc();
 
-    furi_string_printf(buff, "Min: %.1FC", (double)ge->min);
+    furi_string_printf(buff, "Min: %.1FC", (double)sensor->min);
     canvas_draw_str(canvas, 75, 19, furi_string_get_cstr(buff));
-    furi_string_printf(buff, "Max: %.1FC", (double)ge->max);
+    furi_string_printf(buff, "Max: %.1FC", (double)sensor->max);
     canvas_draw_str(canvas, 75, 28, furi_string_get_cstr(buff));
 
     //Grab the center 4 pixels
-    float center_avg = (gridEye_getTemperature(ge, 37) + gridEye_getTemperature(ge, 36) +
-                        gridEye_getTemperature(ge, 29) + gridEye_getTemperature(ge, 28)) /
+    float center_avg = (AMG8833_getTemperature(sensor, 37) + AMG8833_getTemperature(sensor, 36) +
+                        AMG8833_getTemperature(sensor, 29) + AMG8833_getTemperature(sensor, 28)) /
                        4;
     furi_string_printf(buff, "Cntr: %.1FC", (double)center_avg);
     canvas_draw_str(canvas, 75, 37, furi_string_get_cstr(buff));
@@ -59,7 +59,7 @@ static void view_IRCam_grayscale_draw_callback(Canvas* canvas, void* _model) {
                 canvas,
                 56 - x * 8,
                 56 - y * 8,
-                gridEye_getTemperatureGrayscale(ge, y * 8 + x),
+                AMG8833_getTemperatureGrayscale(sensor, y * 8 + x),
                 IconRotation0,
                 model->invert);
         }
@@ -81,7 +81,7 @@ static void view_IRCam_grayscale_draw_callback(Canvas* canvas, void* _model) {
 
 static bool view_IRCam_grayscale_input_callback(InputEvent* event, void* context) {
     furi_assert(context);
-    SensorIRCam* view_IRCam = (SensorIRCam*)context;
+    Sensor_IRCam* view_IRCam = (Sensor_IRCam*)context;
     bool consumed = false;
 
     if(event->type == InputTypeShort) {
@@ -97,19 +97,19 @@ static bool view_IRCam_grayscale_input_callback(InputEvent* event, void* context
     return consumed;
 }
 
-static bool view_IRCam_grayscale_process_left(SensorIRCam* view_IRCam) {
+static bool view_IRCam_grayscale_process_left(Sensor_IRCam* view_IRCam) {
     with_view_model(
         view_IRCam->view, IRCam_grayscale_model * model, { UNUSED(model); }, true);
     return true;
 }
 
-static bool view_IRCam_grayscale_process_right(SensorIRCam* view_IRCam) {
+static bool view_IRCam_grayscale_process_right(Sensor_IRCam* view_IRCam) {
     with_view_model(
         view_IRCam->view, IRCam_grayscale_model * model, { UNUSED(model); }, true);
     return true;
 }
 
-static bool view_IRCam_grayscale_process_ok(SensorIRCam* view_IRCam, InputEvent* event) {
+static bool view_IRCam_grayscale_process_ok(Sensor_IRCam* view_IRCam, InputEvent* event) {
     with_view_model(
         view_IRCam->view, IRCam_grayscale_model * model, { model->invert = !model->invert; }, true);
     bool consumed = true;
@@ -117,13 +117,13 @@ static bool view_IRCam_grayscale_process_ok(SensorIRCam* view_IRCam, InputEvent*
     return consumed;
 }
 
-SensorIRCam* view_IRCam_grayscale_alloc(SensorApp* app) {
-    SensorIRCam* view_IRCam = malloc(sizeof(SensorIRCam));
+Sensor_IRCam* view_IRCam_grayscale_alloc(SensorApp* app) {
+    Sensor_IRCam* view_IRCam = malloc(sizeof(Sensor_IRCam));
 
     UNUSED(app);
     view_IRCam->view = view_alloc();
     view_allocate_model(view_IRCam->view, ViewModelTypeLocking, sizeof(IRCam_grayscale_model));
-    view_IRCam->ge = NULL;
+    view_IRCam->sensor = NULL;
 
     with_view_model(
         view_IRCam->view,
@@ -141,20 +141,20 @@ SensorIRCam* view_IRCam_grayscale_alloc(SensorApp* app) {
     return view_IRCam;
 }
 
-void view_IRCam_grayscale_free(SensorIRCam* view_IRCam) {
+void view_IRCam_grayscale_free(Sensor_IRCam* view_IRCam) {
     furi_assert(view_IRCam);
     view_free(view_IRCam->view);
-    if(view_IRCam->ge != NULL) gridEye_free(view_IRCam->ge);
+    if(view_IRCam->sensor != NULL) AMG8833_free(view_IRCam->sensor);
     free(view_IRCam);
 }
 
-View* view_IRCam_grayscale_get_view(SensorIRCam* view_IRCam) {
+View* view_IRCam_grayscale_get_view(Sensor_IRCam* view_IRCam) {
     furi_assert(view_IRCam);
     return view_IRCam->view;
 }
 
 void view_IRCam_grayscale_set_ok_callback(
-    SensorIRCam* view_IRCam,
+    Sensor_IRCam* view_IRCam,
     GpioTestOkCallback callback,
     void* context) {
     furi_assert(view_IRCam);
@@ -178,11 +178,10 @@ static void grayscale_render(
     uint8_t grayscale_value,
     IconRotation rotation,
     bool invert) {
-    //TODO change to pound define, unify with grideye.c binning algorithm pound define
-    furi_assert(grayscale_value < 9);
+    furi_assert(grayscale_value < NUM_GRAYSCALE_BINS);
 
     if(invert) {
-        grayscale_value = 8 - grayscale_value;
+        grayscale_value = NUM_GRAYSCALE_BINS - grayscale_value;
     }
 
     switch(grayscale_value) {

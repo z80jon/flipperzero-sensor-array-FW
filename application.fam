@@ -5,8 +5,19 @@ App(
     entry_point="sensor_app",
     requires=["gui"],
     stack_size=4 * 1024,
-    fap_icon="images/flask.png",
+    fap_icon="gui/images/flask.png",
     order=50,
+    fap_private_libs=[
+        Lib(
+            name="amg8833",
+        ),
+        Lib(
+            name="vl53l5cx",
+        ),
+        Lib(
+            name="utils",
+        ),
+    ],
     fap_libs=["assets"],
-    fap_icon_assets="images",
+    fap_icon_assets="gui/images",
 )

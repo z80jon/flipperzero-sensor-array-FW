@@ -1,8 +1,8 @@
-#include "../sensor_app_i.h"
+#include "../../sensor_app_i.h"
 #include <furi_hal_power.h>
 #include <furi_hal_usb.h>
 #include <dolphin/dolphin.h>
-#include "../utils.h"
+#include "../../lib/utils/utils.h"
 
 enum MenuItem {
     MenuItemIRCam,

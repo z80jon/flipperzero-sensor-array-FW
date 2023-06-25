@@ -1,5 +1,5 @@
-#include "../sensor_app_i.h"
-#include "../sensors/vl53l5cx/vl53l5cx_api.h"
+#include "../../sensor_app_i.h"
+#include "../../lib/vl53l5cx/vl53l5cx_api.h"
 
 /**
  * @brief Parses fresh data from the sensor, extracting the min and max values as well as populating a grayscale
@@ -9,24 +9,13 @@
  */
 static void process_data(TOFSensor* tof);
 
-void sensor_scene_TOFDepth_ok_callback(InputType type, void* context) {
-    furi_assert(context);
-    SensorApp* app = context;
-
-    if(type == InputTypePress) {
-        notification_message(app->notifications, &sequence_set_blue_255);
-    } else if(type == InputTypeRelease) {
-        notification_message(app->notifications, &sequence_reset_green);
-    }
-}
-
 void sensor_scene_TOFDepth_on_enter(void* context) {
     furi_assert(context);
     SensorApp* app = context;
 
     //TOF Sensor setup
 
-    VL53L5CX_Configuration* tofConfig = app->SensorTOFDepth->tof->TOFConfiguration;
+    VL53L5CX_Configuration* tofConfig = app->Sensor_TOFDepth->tof->TOFConfiguration;
     furi_check(tofConfig != NULL);
 
     vl53l5cx_init(tofConfig);
@@ -38,7 +27,7 @@ void sensor_scene_TOFDepth_on_enter(void* context) {
 
 bool sensor_scene_TOFDepth_on_event(void* context, SceneManagerEvent event) {
     SensorApp* app = context;
-    TOFSensor* tof = app->SensorTOFDepth->tof;
+    TOFSensor* tof = app->Sensor_TOFDepth->tof;
     UNUSED(event);
 
     uint8_t ready = 0;
@@ -55,7 +44,7 @@ bool sensor_scene_TOFDepth_on_event(void* context, SceneManagerEvent event) {
 void sensor_scene_TOFDepth_on_exit(void* context) {
     furi_assert(context);
     SensorApp* app = context;
-    TOFSensor* tof = app->SensorTOFDepth->tof;
+    TOFSensor* tof = app->Sensor_TOFDepth->tof;
     vl53l5cx_stop_ranging(tof->TOFConfiguration);
     //gpio_items_configure_all_pins(app->gpio_items, GpioModeAnalog);
     UNUSED(app);
@@ -75,14 +64,14 @@ void process_data(TOFSensor* tof) {
     }
 
     //Create 9 'bins' we can split the data into and calculate where the 'separators' between them should be based on max vs min
-    int16_t binSeparators[NUM_TEMPERATURE_BINS];
-    float interval = (tof->min - tof->max) / NUM_TEMPERATURE_BINS;
-    for(uint8_t i = 0; i < NUM_TEMPERATURE_BINS; i++) binSeparators[i] = tof->min + (interval * i);
+    int16_t binSeparators[NUM_GRAYSCALE_BINS];
+    float interval = (tof->min - tof->max) / NUM_GRAYSCALE_BINS;
+    for(uint8_t i = 0; i < NUM_GRAYSCALE_BINS; i++) binSeparators[i] = tof->min + (interval * i);
 
     //Sort each of the 64 pixels into its respective bin
     for(uint8_t i = 0; i < 64; i++) {
         tof->grayscale[i] = 0;
-        for(uint8_t bin = 1; bin < NUM_TEMPERATURE_BINS; bin++) {
+        for(uint8_t bin = 1; bin < NUM_GRAYSCALE_BINS; bin++) {
             if(distances[i] > binSeparators[bin - 1]) {
                 tof->grayscale[i] = bin;
             }

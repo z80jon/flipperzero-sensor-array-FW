@@ -1,6 +1,6 @@
 
 #include "utils.h"
-#include "sensor_app_i.h"
+#include "../../sensor_app_i.h"
 #include <stdint.h>
 #include <stdbool.h>
 
